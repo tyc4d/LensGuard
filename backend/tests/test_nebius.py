@@ -66,7 +66,7 @@ def test_cloud_pipeline_preserves_task_isolation_and_citation_gate(bad_quote):
         assert health['gpu_memory'] is None
         assert health['default_model'] == PROFILE
         response = client.post('/v1/analyze', files={'image': ('frame.png', data, 'image/png')},
-            data={'user_request': 'Where is the exit?', 'model_profile': PROFILE,
+            data={'user_request': 'Which direction is the exit?', 'model_profile': PROFILE,
                   'client_request_id': 'cloud-progress-test'})
     assert response.status_code == 200, response.text
     result = response.json()
@@ -100,7 +100,7 @@ def test_cloud_errors_do_not_leak_upstream_body_or_fall_back(status):
     with TestClient(create_app(NebiusRuntime(provider=provider(
             lambda request: httpx.Response(status, text='test-secret private upstream body'))))) as client:
         response = client.post('/v1/analyze', files={'image': ('frame.png', image_bytes(), 'image/png')},
-            data={'user_request': 'Where is the exit?'})
+            data={'user_request': 'Which direction is the exit?'})
     assert response.status_code == 503
     assert f'NEBIUS_HTTP_{status}' in response.text
     assert 'test-secret' not in response.text
@@ -145,7 +145,7 @@ def test_wrong_model_is_rejected_without_cloud_request():
 
     with TestClient(create_app(NebiusRuntime(provider=provider(handler)))) as client:
         response = client.post('/v1/analyze', files={'image': ('frame.png', image_bytes(), 'image/png')},
-            data={'user_request': 'Where is the exit?', 'model_profile': 'nemotron-nano-vl-8b'})
+            data={'user_request': 'Which direction is the exit?', 'model_profile': 'nemotron-nano-vl-8b'})
     assert response.status_code == 422
 
 
