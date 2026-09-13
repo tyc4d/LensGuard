@@ -20,7 +20,7 @@ export function ProposalPanel({ run, realMode = false }: { run: RunState | null;
   return (
     <div className="proposal-body">
       <section className="interpretation-section">
-        <h3 className="eyebrow">Scene interpretation <span className="source-label">{realMode ? 'Local vision-language model' : 'Mock vision-language model'}</span></h3>
+        <h3 className="eyebrow">Scene interpretation <span className="source-label">{realMode ? 'Vision-language model' : 'Mock vision-language model'}</span></h3>
         {run?.interpretation.length ? (
           <ul className="interpretation-list">{run.interpretation.map((text) => <li key={text}>{text}</li>)}</ul>
         ) : <p className="empty-copy">{realMode ? 'This mode outputs actions without a separate scene interpretation.' : 'Scene interpretation appears during analysis.'}</p>}

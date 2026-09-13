@@ -36,7 +36,7 @@ def create_app(
 
     application = FastAPI(
         title="LensGuard Demo API",
-        description="Choose mock or local model mode explicitly; all actions are simulated.",
+        description="Choose mock or model inference mode explicitly; all actions are simulated.",
         version="0.1.0",
         lifespan=lifespan,
     )
@@ -97,7 +97,7 @@ def create_app(
         except (ValidationError, ValueError, TypeError) as exc:
             raise HTTPException(422, 'Invalid analysis request format. Check the input and try again.') from exc
         if isinstance(provider, PrototypeRuntimeProvider) and frame is None:
-            raise HTTPException(422, 'No image provided. Local model mode requires a camera frame or uploaded image.')
+            raise HTTPException(422, 'No image provided. Model mode requires a camera frame or uploaded image.')
         if body.model_profile is not None and not isinstance(provider, PrototypeRuntimeProvider):
             raise HTTPException(422, 'Model selection is only available for live analysis.')
         scenario = scenarios.get(body.scenario_id)

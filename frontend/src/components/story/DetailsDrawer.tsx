@@ -62,7 +62,7 @@ export function DetailsDrawer({ open, onClose, run, baseline, health, query, fra
         </section>
         <dl className="details-drawer-overview">
           <div><dt>Analysis status</dt><dd>{run ? displayLabel(run.status) : 'Awaiting analysis'}</dd></div>
-          <div><dt>Runtime mode</dt><dd>{realMode ? 'Local model' : 'Mock data'}</dd></div>
+          <div><dt>Runtime mode</dt><dd>{realMode ? 'Model inference' : 'Mock data'}</dd></div>
           <div><dt>Frame ID</dt><dd>{run?.frame_id || '—'}</dd></div>
         </dl>
 
@@ -77,7 +77,7 @@ export function DetailsDrawer({ open, onClose, run, baseline, health, query, fra
               <div><dt>Purpose</dt><dd>{isInformational(run) ? 'Informational answer' : run?.outcome?.simulation_only === false ? 'As recorded in the outcome' : 'Simulated external action'}</dd></div>
             </dl>
             {timings.length > 0 && <section className="details-drawer-latency"><h3>Processing time</h3><dl>{timings.map(([key, value]) => <div key={key}><dt>{timingLabel(key)}</dt><dd>{value.toFixed(1)} ms</dd></div>)}</dl></section>}
-            {run?.raw_model_text != null && <section className="details-drawer-model-output"><h3>Raw local model output</h3><pre>{run.raw_model_text}</pre></section>}
+            {run?.raw_model_text != null && <section className="details-drawer-model-output"><h3>Raw model output</h3><pre>{run.raw_model_text}</pre></section>}
             <details className="details-drawer-nested"><summary>Parsing and mapping diagnostics</summary><pre>{rawData(run?.runtime_metadata?.output)}</pre></details>
             {(upstreamError != null || healthError != null) && <details className="details-drawer-nested"><summary>Raw service errors</summary>
               {upstreamError != null && <section><h3>Current analysis</h3><pre>{rawData(upstreamError)}</pre></section>}

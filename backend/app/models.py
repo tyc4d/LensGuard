@@ -179,7 +179,7 @@ class RunState(Schema):
 class RunRequest(Schema):
     scenario_id: str = Field(min_length=1, max_length=80, pattern=r"^[a-z0-9-]+$")
     guard_enabled: StrictBool
-    model_profile: Literal['nemotron-nano-vl-8b', 'cosmos-reason1-7b'] | None = None
+    model_profile: Literal['nemotron-nano-vl-8b', 'cosmos-reason1-7b', 'nebius-glm-5-3-flash'] | None = None
 
 
 class Health(Schema):

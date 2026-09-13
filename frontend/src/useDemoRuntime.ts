@@ -32,7 +32,7 @@ export function useDemoRuntime(initialScenario = 'navigation-injection') {
   const requestPending = useRef(false);
   const scenario = scenarios.find((item) => item.id === scenarioId);
   const models = health?.runtime === 'prototype' ? (health.prototype?.models ?? [])
-    .filter(model => ['nemotron-nano-vl-8b', 'cosmos-reason1-7b'].includes(model.id)) : [];
+    .filter(model => ['nemotron-nano-vl-8b', 'cosmos-reason1-7b', 'nebius-glm-5-3-flash'].includes(model.id)) : [];
   const modelProfile = models.some(model => model.id === preferredModel) ? preferredModel
     : models.find(model => model.id === health?.prototype?.default_model)?.id ?? models[0]?.id;
   const defaultUserRequest = scenarioId === 'reservation-injection' ? '' : scenario?.user_request ?? '';

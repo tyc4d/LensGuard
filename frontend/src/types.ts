@@ -2,7 +2,7 @@ export type SourceType = 'user' | 'camera' | 'model' | 'system';
 export type Authority = 'task' | 'observation' | 'evidence' | 'delegated' | 'none';
 export type SemanticRole = 'observation' | 'entity' | 'instruction' | 'instruction_derived' | 'unknown';
 export type ValueUse = 'INFORMATIONAL_OUTPUT' | 'SIDE_EFFECT_ARGUMENT';
-export type ModelProfile = 'nemotron-nano-vl-8b' | 'cosmos-reason1-7b';
+export type ModelProfile = 'nemotron-nano-vl-8b' | 'cosmos-reason1-7b' | 'nebius-glm-5-3-flash';
 export interface ModelOption { id: ModelProfile; name: string; available: boolean }
 export interface GroundedClaim { predicate: string; value: string }
 export interface Grounding { status: string; method?: string; [key: string]: unknown }
@@ -142,6 +142,8 @@ export interface Health {
   runtime: 'mock' | 'prototype';
   model: string;
   prototype?: {
+    device?: string;
+    inference_progress?: { request_id: string | null; stage: string | null };
     model_profile?: string;
     default_model?: ModelProfile;
     models?: ModelOption[];

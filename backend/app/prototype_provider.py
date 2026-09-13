@@ -52,22 +52,27 @@ def _runtime_error_message(detail, status_code=None):
     """Localize the public error while keeping upstream text in diagnostics."""
     text = str(detail)
     known_errors = {
-        'CUDA_OOM': 'The local model ran out of GPU memory. Check available resources and try again.',
+        'NEBIUS_HTTP_401': 'Nebius authentication failed. Check the server-side API key.',
+        'NEBIUS_HTTP_403': 'Nebius denied access. Check model and region permissions.',
+        'NEBIUS_HTTP_429': 'Nebius rate limit or quota reached. Check your account and retry later.',
+        'NEBIUS_TIMEOUT': 'Nebius inference timed out. Try again later.',
+        'NEBIUS_INVALID_RESPONSE': 'Nebius returned incomplete or invalid model output.',
+        'CUDA_OOM': 'The model ran out of GPU memory. Check available resources and try again.',
         'GPU_BUSY': 'The GPU is in use by another application. Try again when resources are available.',
-        'GPU_MEMORY_INSUFFICIENT': 'There is insufficient GPU memory to run the local model.',
-        'RUNTIME_MISMATCH': 'The local model runtime version does not match. Check the model service configuration.',
-        'REVISION_MISMATCH': 'The local model or processor revision does not match. Check the model service configuration.',
+        'GPU_MEMORY_INSUFFICIENT': 'There is insufficient GPU memory to run the model.',
+        'RUNTIME_MISMATCH': 'The model runtime version does not match. Check the model service configuration.',
+        'REVISION_MISMATCH': 'The model or processor revision does not match. Check the model service configuration.',
     }
     for code, message in known_errors.items():
         if code in text:
             return message
     if status_code == 409:
-        return 'The local model is loading or analyzing. Wait for the current task to finish and try again.'
+        return 'The model is loading or analyzing. Wait for the current task to finish and try again.'
     if status_code == 413:
         return 'The image must be nonempty and no larger than 10 MiB.'
     if status_code == 422:
         return 'The model service could not accept this input. Check the image and user request, then try again.'
-    return 'The local model service could not complete the analysis. Try again later; the original error is available in technical details.'
+    return 'The model service could not complete the analysis. Try again later; the original error is available in technical details.'
 
 
 def _english_task_reason(reason):
@@ -168,9 +173,9 @@ class PrototypeRuntimeProvider:
                               'error': _runtime_error_message(health['error'])}
                 return health
         except (httpx.HTTPError, ValueError):
-            return {'status': 'unavailable', 'model_loaded': False, 'error': 'Unable to connect to the local model service. Start the service; the system will not fall back to mock results.'}
+            return {'status': 'unavailable', 'model_loaded': False, 'error': 'Unable to connect to the model service. Start the service; the system will not fall back to mock results.'}
 
-    async def infer(self, frame: FrameInput, scenario_id: str, guard_enabled=True):
+    async def infer(self, frame: FrameInput, scenario_id: str, guard_enabled=True, client_request_id=None):
         started = perf_counter()
         try:
             async with httpx.AsyncClient(transport=self.transport, timeout=self.timeout) as client:
@@ -178,6 +183,7 @@ class PrototypeRuntimeProvider:
                     files={'image': ('frame.jpg' if frame.content_type == 'image/jpeg' else 'frame.png', frame.data, frame.content_type)},
                     data={'user_request': frame.user_request, 'scenario_id': scenario_id, 'mode': 'action_only',
                           'guard_enabled': str(guard_enabled).lower(),
+                          **({'client_request_id': client_request_id} if client_request_id else {}),
                           **({'model_profile': frame.model_profile} if frame.model_profile else {})})
             if response.is_error:
                 try:
@@ -194,13 +200,13 @@ class PrototypeRuntimeProvider:
                                      diagnostics={'requested_model': frame.model_profile, 'returned_model': result.model})
             return result, (perf_counter() - started) * 1000
         except httpx.TimeoutException as exc:
-            raise RuntimeFailure('Model inference timed out. The local model may still be processing; the system will not fall back to mock results.',
+            raise RuntimeFailure('Model inference timed out. The model may still be processing; the system will not fall back to mock results.',
                                  diagnostics={'type': type(exc).__name__, 'detail': str(exc)}) from exc
         except httpx.HTTPError as exc:
-            raise RuntimeFailure('Unable to connect to the local model service. Start the service; the system will not fall back to mock results.',
+            raise RuntimeFailure('Unable to connect to the model service. Start the service; the system will not fall back to mock results.',
                                  diagnostics={'type': type(exc).__name__, 'detail': str(exc)}) from exc
         except ValueError as exc:
-            raise RuntimeFailure('The local model service returned invalid data; the system will not fall back to mock results.',
+            raise RuntimeFailure('The model service returned invalid data; the system will not fall back to mock results.',
                                  diagnostics={'type': type(exc).__name__, 'detail': str(exc)}) from exc
 
     def map_action(self, response, run_id, *, candidate=False):
@@ -248,12 +254,12 @@ class PrototypeRuntimeProvider:
     async def run(self, state, frame, publish):
         started = perf_counter()
         state.runtime = 'prototype'
-        state.components = {'vlm': 'local', 'provenance': 'transport_only', 'semantic_grounding': 'unavailable', 'policy': 'pending', 'execution': 'simulated'}
+        state.components = {'vlm': 'pending', 'provenance': 'transport_only', 'semantic_grounding': 'unavailable', 'policy': 'pending', 'execution': 'simulated'}
         state.timings = {'frame_capture_ms': frame.capture_ms, 'demo_upload_receive_ms': frame.upload_ms}
         source_label = 'Camera' if frame.source == 'camera' else 'Uploaded'
         await publish('frame.received', f'Received {source_label.lower()} image data ({len(frame.data)} bytes).')
-        await publish('inference.started', 'Request sent to the local model service to generate an action proposal.')
-        response, request_ms = await self.infer(frame, state.scenario_id, state.guard_enabled)
+        await publish('inference.started', 'Request sent to the model service to generate an action proposal.')
+        response, request_ms = await self.infer(frame, state.scenario_id, state.guard_enabled, state.id)
         state.raw_model_text = response.output.raw_text
         state.runtime_metadata = response.model_dump()
         state.model_profile = response.model.get('profile')
@@ -272,7 +278,7 @@ class PrototypeRuntimeProvider:
         if state.semantic_regions:
             state.components['provenance'] = 'semantic_lineage'
             state.components['semantic_grounding'] = (response.provenance or {}).get('semantic_grounding', 'model_perception')
-        await publish('inference.completed', 'Received the actual inference result from the local model.')
+        await publish('inference.completed', 'Received the actual inference result from the model.')
         informational = getattr(response.output, 'proposed_output', None)
         if (isinstance(informational, dict) and informational.get('kind') == 'informational'
                 and informational.get('status') in {'uncertain', 'insufficient_evidence'}
@@ -339,7 +345,7 @@ class PrototypeRuntimeProvider:
         state.action = self.map_action(display_response, state.id)
         await publish('action.parsed', 'The model service validated the structured action format.')
         state.trace_nodes = [TraceNode(id='input', label='Image', type=f'{source_label} image input', source='camera'),
-            TraceNode(id='model', label='Local vision-language model', type='Real inference', source='model'),
+            TraceNode(id='model', label='Vision-language model', type='Real inference', source='model'),
             TraceNode(id='value', label=', '.join(value.value for value in state.action.arguments.values()) or 'No arguments', type='Model-derived; unverified', source='model'),
             TraceNode(id='argument', label=', '.join(f'{state.action.tool}.{key}' for key in state.action.arguments) or state.action.tool, type='Action argument', source='model')]
         state.trace_edges = [TraceEdge(from_='input', to='model'), TraceEdge(from_='model', to='value'), TraceEdge(from_='value', to='argument')]

@@ -34,6 +34,28 @@ test('runtime indicator follows health polling and hides memory after disconnect
   await expect(info).toContainText('GPU VRAM 12.00 / 24.00 GiB');
 });
 
+test('cloud runtime exposes GLM selection without local GPU usage', async ({ page }) => {
+  const response: Health = {
+    status: 'ok', runtime: 'prototype', model: 'live',
+    prototype: {
+      status: 'ready', model_loaded: true, device: 'cloud', gpu_memory: null,
+      model_id: 'zai-org/GLM-5.3-Flash', model_profile: 'nebius-glm-5-3-flash',
+      default_model: 'nebius-glm-5-3-flash',
+      models: [{ id: 'nebius-glm-5-3-flash', name: 'Nebius · zai-org/GLM-5.3-Flash', available: true }],
+    },
+  };
+  await page.route('**/api/health', route => route.fulfill({ json: response }));
+  await page.goto('/');
+  await expect(page.getByLabel('Inference model', { exact: true })).toHaveValue('nebius-glm-5-3-flash');
+  await expect(page.locator('.runtime-info')).toContainText('Cloud inference');
+  await expect(page.locator('.runtime-info')).toContainText('GLM handles text + images');
+  await expect(page.locator('.runtime-info')).toContainText('NVIDIA models are not active');
+  await expect(page.locator('.runtime-info')).not.toContainText('GPU VRAM');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('.runtime-info')).toBeInViewport({ ratio: 1 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
 for (const state of ['mock', 'unloaded', 'loading', 'unavailable', 'missing-memory'] as const) {
   test(`runtime indicator handles ${state} without invented usage`, async ({ page }) => {
     const response: Health = state === 'mock' ? { status: 'ok', runtime: 'mock', model: 'mock' }

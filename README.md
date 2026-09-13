@@ -56,6 +56,14 @@ The system has no database, so in-memory results are cleared after a restart. Hu
 | Deployment and testing | Docker Compose, nginx, mkcert, pytest, Playwright | Container deployment, HTTPS, and automated regression tests |
 | Sponsor technologies | OpenAI, ElevenLabs | Project development and video music |
 
+## Nebius Cloud Inference
+
+For a CPU-only setup with all inference on Nebius GLM-5.3-Flash, see the
+[cloud setup guide](docs/nebius-cloud.md). It uses the US Central 1 endpoint,
+supports image input, and retains the same deterministic Guard checks.
+The cloud gateway replaces the local NVIDIA gateway; no GPU or downloaded
+weights are needed. Live endpoint access must be verified with your API key.
+
 ## NVIDIA Local Models
 
 Both providers run locally in BF16 on the tested Linux / RTX 4090 24 GB environment. The English frontend offers only Nemotron and Cosmos in its model selector, with Nemotron selected by default. Both Guard ON and Guard OFF use the same selected model, image, and request. The selector is disabled while analysis is running.

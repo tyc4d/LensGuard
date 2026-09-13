@@ -132,7 +132,11 @@ export default function App() {
       <DemoExperience stage={stage} presentation={presentation} baseline={comparison.without} showComparison={comparison.input?.compare === true} imageUrl={imageUrl}
         imageAlt={real ? 'Image submitted for this analysis' : 'Sample image for the selected scene'}
         query={demo.displayedUserRequest} sourceLabel={real ? frame?.source === 'camera' ? 'Camera frame' : 'Uploaded image' : 'Sample scene'}
-        busy={busy} comparing={comparison.phase === 'without'} error={error} onChooseInput={() => setSetup(true)} />
+        busy={busy} comparing={comparison.phase === 'without'} error={error} onChooseInput={() => setSetup(true)}
+        cloud={demo.health?.prototype?.device === 'cloud'}
+        inferenceStage={demo.health?.prototype?.status === 'processing'
+          && demo.health.prototype.inference_progress?.request_id === demo.run?.id
+          ? demo.health.prototype.inference_progress?.stage : null} />
       <button className="experience-next" onClick={() => void next()} disabled={busy || (stage === 'input' && !canAnalyze)}
         aria-keyshortcuts={stage === 'result' ? 'r' : 'ArrowRight'}>
         {busy ? 'Analyzing' : stage === 'input' ? 'Start analysis' : stage === 'result' ? 'Replay' : 'Next'}

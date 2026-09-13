@@ -14,6 +14,8 @@ interface Props {
   sourceLabel: string;
   busy: boolean;
   comparing: boolean;
+  cloud?: boolean;
+  inferenceStage?: string | null;
   error: string | null;
   onChooseInput: () => void;
 }
@@ -26,10 +28,22 @@ const roleLabels: Record<Piece['label'], string> = {
   OBSERVATION: 'Observation', CONTACT: 'Contact information', INSTRUCTION: 'Injected instruction', QUOTED: 'Quoted text', UNRESOLVED: 'Unresolved',
 };
 
-export function DemoExperience({ stage, presentation, baseline, showComparison, imageUrl, imageAlt, query, sourceLabel, busy, comparing, error, onChooseInput }: Props) {
+export function DemoExperience({ stage, presentation, baseline, showComparison, imageUrl, imageAlt, query, sourceLabel, busy, comparing, cloud, inferenceStage, error, onChooseInput }: Props) {
   const viewport = useRef<HTMLDivElement>(null);
   const [bounds, setBounds] = useState({ width: 1000, height: 625 });
   const [imageSize, setImageSize] = useState({ width: 1000, height: 625 });
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    setElapsed(0);
+    if (!busy) return;
+    const started = Date.now();
+    const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, [busy, comparing]);
+  const phaseLabels: Record<string, string> = {
+    task: '1/3 · Understanding your request', perception: '2/3 · Reading the image',
+    selection: '3/3 · Selecting cited evidence', unprotected: 'Running the unprotected comparison',
+  };
   useEffect(() => {
     if (!viewport.current) return;
     const observer = new ResizeObserver(entries => {
@@ -123,7 +137,13 @@ export function DemoExperience({ stage, presentation, baseline, showComparison, 
         {result.note && <p className="result-note">{result.note}</p>}
       </div>}
       {stage === 'input' && imageUrl && <span className="scene-source">{sourceLabel}</span>}
-      {busy && <div className="analysis-indicator" role="status">{comparing ? 'Comparing the unprotected result' : 'Reading the scene'}<span aria-hidden="true">…</span></div>}
+      {busy && <div className="analysis-indicator" role="status">
+        <span>{cloud ? phaseLabels[inferenceStage ?? ''] ?? 'Waiting for the cloud service'
+          : comparing ? 'Comparing the unprotected result' : 'Reading the scene'}…</span>
+        <span aria-live="off"> {elapsed}s elapsed</span>
+        {cloud && <small>{elapsed >= 60 ? 'The cloud is taking longer. A timeout will show an error; no result is substituted.'
+          : comparing ? 'One separate model call with Guard OFF.' : 'Three sequential model calls, then Guard checks. This can take a minute or longer.'}</small>}
+      </div>}
     </div>
     <div className="stage-undertext">
       {error ? <p className="experience-error" role="alert">{error}</p> : stage === 'input' && <p className="scene-request">{query ? `“${query}”` : 'Choose a scene and enter your request.'}</p>}

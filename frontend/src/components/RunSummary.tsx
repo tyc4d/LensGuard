@@ -70,7 +70,7 @@ export function presentRun(run: RunState | null, active: boolean) {
 }
 
 const stageLabels: Record<string, string> = {
-  'inference.started': 'Running the local model',
+  'inference.started': 'Running the model',
   'inference.completed': 'Model response received',
   'action.parsed': 'Structured action validated',
   'frame.received': 'Receiving the image',

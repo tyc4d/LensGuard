@@ -2,6 +2,48 @@ import { expect, test } from '@playwright/test';
 import { backendRun, finish, liveHealth, prepareLive, separate, upload, requestGuard, routePair } from './experience-helpers';
 import type { RunState } from '../src/types';
 
+test('cloud wait shows matched stages and elapsed time without inventing progress', async ({ page, request }) => {
+  const result = await backendRun(request);
+  const initial = { ...result, runtime: 'prototype', status: 'running', stage: 'queued', events: [],
+    regions: [], semantic_regions: [], action: null, decision: null, outcome: null, final_answer: null };
+  let phase = 'task';
+  let requestId = result.id;
+  let release!: () => void;
+  const ready = new Promise<void>(resolve => { release = resolve; });
+  await page.clock.install();
+  await page.route('**/api/health', route => route.fulfill({ json: {
+    status: 'ok', runtime: 'prototype', model: 'live', prototype: {
+      status: 'processing', model_loaded: true, device: 'cloud', model_profile: 'nebius-glm-5-3-flash',
+      inference_progress: { request_id: requestId, stage: phase },
+    },
+  } }));
+  await page.route('**/api/run', route => route.fulfill({ json: initial }));
+  await page.route(`**/api/run/${result.id}`, route => route.fulfill({ json: initial }));
+  await page.route(`**/api/run/${result.id}/events`, async route => {
+    await ready;
+    await route.abort();
+  });
+  await prepareLive(page);
+  await page.getByRole('button', { name: 'Start analysis', exact: true }).click();
+  try {
+    const indicator = page.locator('.analysis-indicator');
+    await expect(indicator).toContainText('1/3 · Understanding your request');
+    phase = 'perception';
+    await page.clock.runFor(5000);
+    await expect(indicator).toContainText('2/3 · Reading the image');
+    await page.clock.runFor(60000);
+    await expect(indicator).toContainText('65s elapsed');
+    await expect(indicator).toContainText('The cloud is taking longer');
+    requestId = 'another-run';
+    phase = 'selection';
+    await page.clock.runFor(5000);
+    await expect(indicator).toContainText('Waiting for the cloud service');
+    await expect(indicator).not.toContainText('3/3');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(indicator).toBeInViewport({ ratio: 1 });
+  } finally { release(); }
+});
+
 for (const source of ['camera', 'uploaded_image'] as const) {
   test(`one real ${source} snapshot is sent with the exact request; replay does not resubmit`, async ({ page, request }) => {
     const result = await backendRun(request);

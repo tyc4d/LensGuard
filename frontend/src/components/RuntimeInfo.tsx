@@ -6,6 +6,7 @@ const modelNames: Record<string, string> = {
   'minicpm-v4.5': 'MiniCPM-V 4.5',
   'nemotron-nano-vl-8b': 'NVIDIA Nemotron Nano VL 8B',
   'cosmos-reason1-7b': 'NVIDIA Cosmos Reason1 7B',
+  'nebius-glm-5-3-flash': 'Nebius GLM-5.3-Flash',
 };
 
 export function RuntimeInfo({ health, connected, models = [], selectedModel, onModelChange, disabled = false }: {
@@ -13,6 +14,7 @@ export function RuntimeInfo({ health, connected, models = [], selectedModel, onM
   onModelChange?: (id: ModelProfile) => void; disabled?: boolean;
 }) {
   const runtime = health?.prototype;
+  const cloud = runtime?.device === 'cloud';
   const live = connected && health?.runtime === 'prototype' && runtime && runtime.status !== 'unavailable';
   const gpu = live ? runtime.gpu_memory : null;
   const used = gpu?.used_mib;
@@ -27,7 +29,7 @@ export function RuntimeInfo({ health, connected, models = [], selectedModel, onM
     else if (!runtime.model_loaded) model += ' (not loaded)';
   }
   return <small className="runtime-info" aria-label="Inference model and GPU memory"
-    title={live ? `${runtime.model_id ?? model}${gpu?.name ? ` · ${gpu.name}` : ''}. Total GPU memory used / capacity, updated every 4 seconds.` : model}>
+    title={cloud ? 'Cloud inference via Nebius. No local GPU required.' : live ? `${runtime.model_id ?? model}${gpu?.name ? ` · ${gpu.name}` : ''}. Total GPU memory used / capacity, updated every 4 seconds.` : model}>
     {models.length > 0 && onModelChange ? <select className="runtime-model-select" aria-label="Inference model"
       title="Choose the model for your next analysis. Switching models may take a moment."
       value={selectedModel} disabled={disabled || !connected}
@@ -37,6 +39,9 @@ export function RuntimeInfo({ health, connected, models = [], selectedModel, onM
           && ['switching', 'loading'].includes(runtime.status) ? ' (loading)' : ''}
       </option>)}
     </select> : <span className="runtime-model">{model}</span>}
-    <span className="runtime-memory">GPU VRAM {memory}</span>
+    <span className="runtime-memory">{cloud ? 'Cloud inference' : `GPU VRAM ${memory}`}</span>
+    {cloud && <span className="runtime-explanation">GLM handles text + images. Guard checks evidence and permissions in code.
+      <span>Request → Read image → Select evidence → Guard checks. NVIDIA models are not active in this setup.</span>
+    </span>}
   </small>;
 }
