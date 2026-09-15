@@ -24,7 +24,8 @@ def create_app(
 ) -> FastAPI:
     settings = settings or Settings.from_environment()
     scenarios = load_scenarios(settings.fixture_path)
-    provider = provider or (PrototypeRuntimeProvider(settings.prototype_runtime_url, settings.inference_timeout_seconds) if settings.runtime == "prototype" else MockRuntimeProvider())
+    provider = provider or (PrototypeRuntimeProvider(settings.prototype_runtime_url, settings.inference_timeout_seconds,
+        second_opinion_url=settings.second_opinion_url) if settings.runtime == "prototype" else MockRuntimeProvider())
 
     @asynccontextmanager
     async def lifespan(application: FastAPI):

@@ -143,6 +143,14 @@ class ValidationIssue(Schema):
     message: str
 
 
+class SecondOpinion(Schema):
+    status: Literal["agree", "disagree", "uncertain", "unavailable", "error"]
+    model: str | None = None
+    summary: str
+    checked_claims: list[str] = Field(default_factory=list)
+    conflicts: list[str] = Field(default_factory=list)
+
+
 class RunState(Schema):
     runtime: Literal["mock", "prototype"] = "mock"
     model_profile: str | None = None
@@ -152,6 +160,7 @@ class RunState(Schema):
     timings: dict[str, float] = Field(default_factory=dict)
     components: dict[str, str] = Field(default_factory=dict)
     runtime_metadata: dict[str, Any] = Field(default_factory=dict)
+    second_opinion: SecondOpinion | None = None
     id: str
     scenario_id: str
     guard_enabled: bool

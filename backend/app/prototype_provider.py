@@ -8,7 +8,7 @@ import math
 import httpx
 from pydantic import BaseModel, ConfigDict
 
-from .models import PolicyDecision, ProposedAction, ProvenanceValue, RunOutcome, TraceNode, TraceEdge
+from .models import PolicyDecision, ProposedAction, ProvenanceValue, RunOutcome, TraceNode, TraceEdge, SecondOpinion
 from .action_validation import reservation_issues
 
 
@@ -157,10 +157,26 @@ class RemoteResponse(BaseModel):
 
 
 class PrototypeRuntimeProvider:
-    def __init__(self, url: str, timeout: float = 180, transport=None):
+    def __init__(self, url: str, timeout: float = 180, transport=None, second_opinion_url: str | None = None):
         self.url = url.rstrip('/')
         self.timeout = timeout
         self.transport = transport
+        self.second_opinion_url = second_opinion_url.rstrip('/') if second_opinion_url else None
+
+    async def second_opinion(self, frame: FrameInput, response: RemoteResponse) -> SecondOpinion:
+        if not self.second_opinion_url:
+            return SecondOpinion(status='unavailable', summary='No independent evaluator is configured.')
+        payload = {'user_request': frame.user_request, 'primary_model': response.model,
+                   'primary_output': response.output.model_dump(), 'provenance': response.provenance,
+                   'policy': response.policy}
+        try:
+            async with httpx.AsyncClient(transport=self.transport, timeout=min(self.timeout, 60)) as client:
+                result = await client.post(f'{self.second_opinion_url}/v1/evaluate', json=payload)
+            result.raise_for_status()
+            return SecondOpinion.model_validate(result.json())
+        except (httpx.HTTPError, ValueError):
+            return SecondOpinion(status='error', model='nemotron-evaluator',
+                summary='The independent evaluator did not return a valid opinion.')
 
     async def health(self):
         try:
@@ -260,6 +276,8 @@ class PrototypeRuntimeProvider:
         await publish('frame.received', f'Received {source_label.lower()} image data ({len(frame.data)} bytes).')
         await publish('inference.started', 'Request sent to the model service to generate an action proposal.')
         response, request_ms = await self.infer(frame, state.scenario_id, state.guard_enabled, state.id)
+        # The evaluator is advisory only; policy remains authoritative.
+        state.second_opinion = await self.second_opinion(frame, response)
         state.raw_model_text = response.output.raw_text
         state.runtime_metadata = response.model_dump()
         state.model_profile = response.model.get('profile')

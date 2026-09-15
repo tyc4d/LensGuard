@@ -62,6 +62,10 @@ text-only request is not sufficient to establish vision access on the endpoint.
 Requests use `reasoning.effort=low`, an 8,192-token output budget (including
 reasoning), and `store=false`. Each analysis has a 240-second budget shared by its model
 calls, with each call limited to at most 240 seconds and no automatic retries.
+An optional independent text evaluator can be configured with `SECOND_OPINION_URL`;
+it receives the primary model's structured output at `POST /v1/evaluate` and returns
+`agree`, `disagree`, or `uncertain`. This opinion is advisory and never grants
+authorization or replaces the deterministic Guard decision.
 The page displays elapsed waiting time and the actual model stage, matched to
 the current run ID through service health polling. Credentials,
 rate limits, connection errors, incomplete output, and invalid model JSON fail
