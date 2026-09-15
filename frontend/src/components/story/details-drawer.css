@@ -49,6 +49,10 @@
 .details-drawer .run-summary.result-blocked .result-label, .details-drawer .run-summary.result-compromised .result-label { color: #a35d43; }
 .details-drawer .run-summary.result-allowed .result-label { color: #527541; }
 .details-drawer .run-summary .decision-reason, .details-drawer .run-summary .simulation-note, .details-drawer .run-summary .outcome-note, .details-drawer .run-summary .stage-progress { margin-top: 9px; color: #7b8671; font-size: 12px; }
+.details-drawer .second-opinion { margin-top: 18px; padding: 14px; border: 1px solid #dce4d2; border-radius: 8px; background: #f8faf5; }
+.details-drawer .second-opinion h3 { margin: 0 0 8px; }
+.details-drawer .second-opinion p { margin: 5px 0 0; font-size: 12px; }
+.details-drawer .second-opinion--disagree, .details-drawer .second-opinion--error { border-color: #e2b8a9; background: #fff8f5; }
 .details-drawer .run-summary .outcome-note { padding-top: 4px; }
 .details-drawer .run-summary .outcome-note strong { color: #526345; }
 .details-drawer-frame { margin: 0 0 17px; }

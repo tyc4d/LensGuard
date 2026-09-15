@@ -8,6 +8,7 @@ import { EventTimeline } from '../EventTimeline';
 import { RawAction } from '../RawAction';
 import { RunSummary } from '../RunSummary';
 import { SemanticEvidence } from '../SemanticEvidence';
+import { SecondOpinion } from '../SecondOpinion';
 import { isInformational } from '../../story';
 import './details-drawer.css';
 
@@ -70,6 +71,7 @@ export function DetailsDrawer({ open, onClose, run, baseline, health, query, fra
           <summary>View technical details</summary>
           <div className="details-drawer-section-content">
             <RunSummary run={run} userRequest={query} active={run?.status === 'running'} />
+            <SecondOpinion opinion={run?.second_opinion} />
             {frameUrl && <figure className="details-drawer-frame"><img src={frameUrl} alt="Original image captured for this analysis" /><figcaption>Captured frame for this analysis</figcaption></figure>}
             <dl className="details-drawer-facts">
               <div><dt>Run ID</dt><dd>{run?.id || '—'}</dd></div>

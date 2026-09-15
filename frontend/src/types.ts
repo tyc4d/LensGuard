@@ -105,6 +105,7 @@ export interface RunOutcome {
 }
 
 export interface RunState {
+  second_opinion?: { status: 'agree' | 'disagree' | 'uncertain' | 'unavailable' | 'error'; model?: string | null; summary: string; checked_claims?: string[]; conflicts?: string[] } | null;
   semantic_regions?: SemanticRegion[];
   retained_evidence_ids?: string[];
   denied_instruction_ids?: string[];
