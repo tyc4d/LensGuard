@@ -1,4 +1,5 @@
 import base64
+import asyncio
 import io
 import json
 
@@ -10,6 +11,7 @@ Image = pytest.importorskip('PIL.Image', reason='Install requirements-cloud.txt 
 
 from cloud_gateway import create_app
 from prototype_demo_server.nebius import NebiusProvider, NebiusRuntime, PROFILE
+from app.prototype_provider import FrameInput, PrototypeRuntimeProvider, RemoteResponse
 
 
 def image_bytes():
@@ -110,6 +112,28 @@ def test_cloud_errors_do_not_leak_upstream_body_or_fall_back(status):
 def test_missing_key_fails_before_inference():
     with pytest.raises(ValueError, match='NEBIUS_API_KEY'):
         NebiusProvider(api_key='', model='test', base_url='https://example.test/v1/')
+
+
+def test_second_opinion_is_advisory_and_validates_evaluator_contract():
+    evaluator = httpx.MockTransport(lambda request: httpx.Response(200, json={
+        'status': 'disagree', 'model': 'nemotron-nano-vl-8b',
+        'summary': 'The cited arrow does not establish a travel direction.',
+        'checked_claims': ['direction'], 'conflicts': ['vertical arrow is ambiguous'],
+    }))
+    provider = PrototypeRuntimeProvider('http://primary.test', transport=evaluator,
+        second_opinion_url='http://evaluator.test')
+    response = RemoteResponse.model_validate({
+        'contract_version': 'lensguard-demo-v1', 'request_id': 'r',
+        'model': {'profile': 'nebius-glm-5-3-flash'},
+        'output': {'raw_text': '{}', 'parsed': True}, 'provenance': None,
+        'policy': None, 'timing': {},
+    })
+    opinion = asyncio.run(provider.second_opinion(FrameInput(b'', 'image/png', 'Where is the exit?'), response))
+    assert opinion.status == 'disagree'
+    assert opinion.model == 'nemotron-nano-vl-8b'
+    provider.second_opinion_url = None
+    unavailable = asyncio.run(provider.second_opinion(FrameInput(b'', 'image/png', 'Where is the exit?'), response))
+    assert unavailable.status == 'unavailable'
 
 
 def test_incomplete_response_is_rejected():
