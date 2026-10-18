@@ -1,19 +1,19 @@
-# LensGuard｜視覺 AI 助理的行動授權防護
+# LensGuard
 
-[English](README.md) | [繁體中文](READMD_zh.md)
+[English](README.md) · [繁體中文](READMD_zh.md)
 
 Power it with Nemotron models on Nebius through Token Factory.
 
 > 📌 **先看技術文件：** [LensGuard_Paper.pdf](Technical%20documents/LensGuard_Paper.pdf)<br>
 > 想先了解這個 Demo 的背景與設計方向，可從這份 PDF 開始。
 
-## 問題與目標
+依視覺資訊判斷或行動的 AI，例如機器人、智慧眼鏡與視覺操作型 agents，正逐步超越單純描述畫面。場景文字能提供證據，其中夾帶的指令卻不應被當成使用者命令。混淆場景內容與使用者指示，可能造成錯誤的數位操作、誤導性的實體指引或非預期的實體動作；未來智慧眼鏡導航只是其中一例。相關研究包括電腦操作助理的 [VPI-Bench](https://arxiv.org/abs/2506.02456)，以及探討穿戴裝置實體攻擊與防禦的 [Devil in the Lens](https://arxiv.org/abs/2607.10269)。
 
-當 AI 助理透過相機閱讀招牌、名片與路標，畫面中的文字也可能夾帶「忽略使用者、改打另一支電話」等指令。若助理直接照做，外部環境便能改變使用者原本授權的行動。
+LensGuard 是相機型助理的研究展示，將看見、引用與行動分開處理。出口標誌可支持有引用的方向回答；讀出電話則與提議模擬撥號分開處理。開發者能檢查模型提議、支持它的原文、授權決定，以及需要澄清的原因。
 
-LensGuard 面向使用相機或穿戴式視覺助理的使用者，以及開發多模態 Agent 的團隊，探索如何保留有用的場景資訊，同時限制影像中的指令影響回答與敏感操作。目標是讓使用者看懂 AI 採用了什麼資訊、忽略了什麼指令，以及最後為何回答、允許或停止。
+**[開啟展示](https://elk-on-namely.ngrok-free.app/) · [觀看影片](https://youtu.be/M4BbW9jHx1Q) · [Nebius 雲端設定](docs/nebius-cloud.md)**
 
-## 核心功能
+## 三個可檢查的情境
 
 - **相機與圖片輸入：** 選擇相機或上傳圖片，輸入自己的需求；按下「開始分析」才送出凍結畫面。瀏覽器會先將畫面壓縮為 JPEG，減少傳輸大小。
 - **任務與引用檢查：** 先只解析使用者需求，再轉錄圖片、選取已有引用，由程式檢查原文、完整電話與任務一致性。
@@ -25,7 +25,7 @@ LensGuard 面向使用相機或穿戴式視覺助理的使用者，以及開發�
 - **有／無防護比較：** 干擾情境使用同一張圖片與同一個需求，取得兩次獨立推論；結果相同或失敗也如實呈現。乾淨情境只做一次有防護分析。
 - **可離線演示的 Mock 模式：** 使用 repo 內固定情境重現介面與流程，不需要 GPU 或模型 API 金鑰。真實推論失敗不會自動改用 Mock。
 
-## 系統架構
+點選 View evidence 或按 D 可查看模型原文、引用、確定性授權判定與獨立審查。箭頭可支持方向，但不一定能回答「出口實際在哪裡」。
 
 ```mermaid
 flowchart TD
@@ -53,7 +53,7 @@ flowchart TD
 
 系統沒有資料庫，重啟後記憶體結果會清除。雲端模式會將圖片與需求送至 Nebius，需要 API 金鑰；本機主要推論使用預先下載的 Hugging Face 權重與 GPU，若啟用雲端複核仍需 Nebius 存取權。Demo 的 [`prototype`](https://github.com/tyc4d/FM26-LensGuard-Prototype/tree/fc5003faebc0f51bd6b8959ab03ee5af0dac7400) 是 Git submodule，連到獨立 Prototype repo 的固定 commit。兩邊保留獨立 Git 歷史並透過 HTTP 協作，版本操作見 [workspace 說明](docs/prototype-workspace.md)，流程見 [系統架構](docs/architecture.md)及[任務與引用約束](docs/task-boundary.md)。
 
-## 使用技術
+## 安裝與驗證
 
 | 類型 | 技術／服務 | 用途 |
 | --- | --- | --- |
@@ -95,21 +95,16 @@ backend/.venv/bin/python backend/second_opinion_gateway.py --port 8020
 
 兩個 provider 均已在 Linux／RTX 4090 24 GB 環境以 BF16 執行。連接本機 NVIDIA gateway 時，英文前端的模型選單提供 Nemotron 與 Cosmos，預設為 Nemotron。Guard ON／OFF 比較固定使用相同模型、圖片與需求；分析期間會鎖住選單。
 
-| 模型 | 模型 profile ID | 已測試環境 |
-| --- | --- | --- |
-| [nvidia/Llama-3.1-Nemotron-Nano-VL-8B-V1](https://huggingface.co/nvidia/Llama-3.1-Nemotron-Nano-VL-8B-V1) | `nemotron-nano-vl-8b` | 獨立 `lensguard-nemotron` 環境；Transformers 4.53.3 |
-| [nvidia/Cosmos-Reason1-7B](https://huggingface.co/nvidia/Cosmos-Reason1-7B) | `cosmos-reason1-7b` | 既有 `lensguard-vlm` 環境；Transformers 5.16.1 |
+## 限制
 
 先完成 [基礎 GPU 環境安裝](docs/local-model-setup.md#環境)，再依 [NVIDIA 安裝指南](https://github.com/tyc4d/FM26-LensGuard-Prototype/blob/fc5003faebc0f51bd6b8959ab03ee5af0dac7400/docs/nvidia_local_models.md#setup-cache-and-startup)建立 Nemotron 的獨立依賴環境並下載固定版本模型。兩個設定都要求載入前至少有 21,000 MiB 可用 VRAM；gateway 會先結束自己啟動的舊 worker，再載入另一個模型，不會終止其他 GPU 工作。安裝好後端依賴後，從 Demo 根目錄啟動 gateway：
 
-```bash
-cd backend
-.venv/bin/python -m model_gateway --port 8010
-```
+## 研究、團隊與授權
 
-接著以下方方式設定 Demo 後端：`LENSGUARD_RUNTIME=prototype`、`PROTOTYPE_RUNTIME_URL=http://127.0.0.1:8010`。gateway 使用已準備好的環境與已快取權重。環境路徑、切換行為與健康檢查見 [NVIDIA Demo 操作說明](docs/nvidia-demo.md)。
+[研究論文](Technical%20documents/LensGuard_Paper.pdf) 保留原始本機模型實驗，並加入有日期的雲端驗收結果；歷史數據與目前 Nebius 證據分開呈現。[可編輯原稿與編譯方式](Technical%20documents/paper-source/README.md)。[舊版截圖](screenshot) 另行保存。
 
-NVIDIA 語意契約以開放式觀察表示資訊問題，可包含選用屬性、信心度、不確定性與證據連結。詢問方向時選取方向本身，不會把招牌名稱當成方向；新場景概念不需要新增任務列舉值。觀察不確定或證據不足時，可回報無法可靠回答，不產生行動決策；格式錯誤的模型輸出仍會回報錯誤。讀取電話只產生資訊回答，要求撥號才將號碼送入既有委派與授權檢查。**不需要修改任何安全政策：** provenance、grounding、delegation、Thin Gate、相機權限與環境指令權威均維持不變。
+- 蔡語宸：開發、模型整合、安全機制與展示工程。
+- 侯柏安：研究、技術文件、實驗、使用者研究與提案影片。
 
 2026-09-07 的 GPU smoke 測試中，兩個模型皆通過乾淨／注入導航、電話資訊查詢、委派撥號與混合電話情境；注入電話的綁定仍被阻擋。這些測試使用英文需求，尚未評估中文準確度。額外的非文字顏色情境在兩個模型上都失敗。樓梯、模糊朝向與門的開關狀態使用的是預先提供觀察的契約測試，不代表已驗證真實模型感知。各層感知、解析、語意綁定、不確定性、grounding、授權與端到端結果，見 [分層結果與剩餘限制](https://github.com/tyc4d/FM26-LensGuard-Prototype/blob/fc5003faebc0f51bd6b8959ab03ee5af0dac7400/docs/nvidia_semantic_contract.md)。
 

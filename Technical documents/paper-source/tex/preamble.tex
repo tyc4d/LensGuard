@@ -1,0 +1,33 @@
+\usepackage[margin=14mm,top=13mm,bottom=14mm,headheight=10pt,headsep=4mm]{geometry}
+\usepackage{newtxtext,newtxmath}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{amsmath,graphicx,booktabs,tabularx,array,multicol,caption,titlesec,fancyhdr,enumitem,xurl}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={LensGuard: Evidence-Constrained Action Authorization for Camera-Based AI Assistants},pdfauthor={Bo-An Hou and Yu-Chen Tsai},pdfsubject={technical paper; runtime update 2026-10-18}}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\fontsize{7.5}{9}\selectfont LensGuard}
+\fancyhead[R]{}
+\fancyfoot[C]{\fontsize{8}{9}\selectfont\thepage}
+\renewcommand{\headrulewidth}{0.25pt}
+\setlength{\columnsep}{5mm}\setlength{\parindent}{1em}\setlength{\parskip}{1.5pt}
+\setlength{\multicolsep}{4pt}\setlength{\emergencystretch}{1.2em}
+\raggedbottom\raggedcolumns
+\titleformat{\section}{\fontsize{11}{13}\selectfont\bfseries}{\thesection.}{.42em}{}
+\titleformat{\subsection}{\fontsize{9.6}{11.5}\selectfont\bfseries}{\thesubsection}{.42em}{}
+\titlespacing*{\section}{0pt}{5.5pt}{2.5pt}\titlespacing*{\subsection}{0pt}{4pt}{1.5pt}
+\captionsetup{font={small},labelfont=bf,labelsep=space,skip=3pt,hypcap=false}
+\renewcommand{\refname}{References}\renewcommand{\figurename}{Fig.}\renewcommand{\tablename}{Table}
+\renewcommand{\arraystretch}{1.11}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\bodyfont}{\fontsize{9.45}{12.1}\selectfont}
+\newcommand{\tabfont}{\fontsize{8.1}{9.8}\selectfont}
+\newcommand{\note}[1]{{\fontsize{7.8}{9.4}\selectfont\noindent #1\par}}
+\newcommand{\figcap}[2]{\captionof{#1}{#2}}
+\newcommand{\modelgpt}{GPT-5.6 Sol}
+\newcommand{\modelgem}{Gemini 3.1 Flash-Lite}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\metric}[2]{\begin{minipage}[t]{0.23\textwidth}\centering{\fontsize{16}{18}\selectfont\bfseries #1}\par\vspace{1pt}{\fontsize{7.7}{9.1}\selectfont #2}\end{minipage}}

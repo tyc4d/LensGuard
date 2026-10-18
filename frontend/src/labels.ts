@@ -59,6 +59,7 @@ const events: Record<string, string> = {
   'second_opinion.started': 'Nemotron review started', 'second_opinion.completed': 'Nemotron review completed',
   queued: 'Awaiting analysis', 'frame.received': 'Image received',
   'inference.started': 'Model inference started', 'inference.completed': 'Model inference completed',
+  'second_opinion.started': 'Independent review started', 'second_opinion.completed': 'Independent review completed',
   'action.parsed': 'Action parsed', 'perception.scene_analyzed': 'Scene analyzed',
   'perception.text_extracted': 'Text extracted', 'model.action_proposed': 'Model proposed an action',
   'provenance.attached': 'Provenance attached', 'policy.evaluated': 'Authorization evaluated',
@@ -78,6 +79,7 @@ const timings: Record<string, string> = {
   prototype_parsing_and_metadata_ms: 'Parsing and metadata',
   prototype_policy_ms: 'Authorization evaluation', prototype_total_ms: 'Inference service total',
   prototype_request_ms: 'Inference service round trip', demo_runtime_ms: 'Analysis total',
+  second_opinion_request_ms: 'Independent evaluator service round trip',
   browser_upload_roundtrip_ms: 'Browser upload round trip', browser_total_ms: 'Browser total',
 };
 

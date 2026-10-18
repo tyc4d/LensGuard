@@ -1,0 +1,11 @@
+{
+  "received_at_utc": "2026-10-18T08:30:35.114961+00:00",
+  "http_status": 202,
+  "body_sha256_before_redaction": "b7e50bc450d146fdfd1b443c324dfe557ac392de82011939e6ad298e91f86eed",
+  "response_bytes": 630,
+  "credential_redactions": 0,
+  "headers": {
+    "content-type": "application/json",
+    "date": "Sun, 18 Oct 2026 08:30:35 GMT"
+  }
+}

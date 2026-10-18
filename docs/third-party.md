@@ -9,13 +9,14 @@
 
 ## 使用過的模型與雲端 API
 
-目前真實網頁 Demo 只提供 NVIDIA Nemotron Nano VL 8B（預設）與 Cosmos Reason1 7B，
-模型來源與環境見 [NVIDIA 操作說明](nvidia-demo.md)。Qwen 與 Gemma 曾用於先前 Demo 整合；
-下表的三個 local 模型與兩個 cloud 模型保留 Prototype 實驗紀錄。
-下表保留實驗的確切模型 ID，雲端名稱以已保存的執行紀錄為準。
+Current cloud mode uses GLM-5.3-Flash on Nebius Token Factory for primary inference and a configured NVIDIA Nemotron for advisory text review. Local GPU mode offers Nemotron Nano VL and Cosmos Reason1. The remaining models below document earlier Prototype research, not the current cloud deployment. See [cloud setup](nebius-cloud.md) for the actual role boundaries and observed model configuration.
 
 | 類型 | 模型與確切 ID | 官方來源與授權／服務條款 | 專案用途 |
 | --- | --- | --- | --- |
+| Cloud | GLM-5.3-Flash: `zai-org/GLM-5.3-Flash` | [Nebius Token Factory](https://nebius.com/token-factory) | Current primary task, image and citation inference; server-side credentials required |
+| Cloud | Configurable NVIDIA Nemotron; observed `nvidia/Nemotron-3.5-Super-VL` | [Nebius Token Factory](https://nebius.com/token-factory) | Current advisory text review; does not authorize actions or inspect the image |
+| Local | NVIDIA Nemotron Nano VL: `nvidia/Llama-3.1-Nemotron-Nano-VL-8B-V1` | [Model and license terms](https://huggingface.co/nvidia/Llama-3.1-Nemotron-Nano-VL-8B-V1) | Optional local GPU primary model |
+| Local | NVIDIA Cosmos Reason1: `nvidia/Cosmos-Reason1-7B` | [Model and license terms](https://huggingface.co/nvidia/Cosmos-Reason1-7B) | Optional local GPU primary model |
 | Local | Qwen3-VL 8B Instruct：`Qwen/Qwen3-VL-8B-Instruct` | [模型頁，Apache-2.0](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | 先前 Demo 的場景轉錄、任務解析與引用選取；Phase 2.5／3.5 本機基準及實體 pilot |
 | Local | Gemma 3 4B IT：`google/gemma-3-4b-it` | [模型頁](https://huggingface.co/google/gemma-3-4b-it)、[Gemma Terms of Use](https://ai.google.dev/gemma/terms) | 早期真實 Demo 整合；Phase 2.5／3.5 小模型基準及實體 pilot |
 | Local | MiniCPM-V 4.5：`openbmb/MiniCPM-V-4_5` | [模型頁與 Apache-2.0 說明](https://huggingface.co/openbmb/MiniCPM-V-4_5#license) | Phase 2.5／3.5 本機多模態基準及實體 pilot |
@@ -25,7 +26,7 @@
 Local 權重由 Hugging Face 另外下載，未納入 Demo repo。Gemma 下載需先接受
 Google 的模型使用條款。Cloud 模型透過 API 使用，適用各供應商服務條款；
 下方 SDK 的 Apache-2.0 授權適用於 SDK 程式碼。API 金鑰保留在本機環境，
-目前的 NVIDIA Demo 與 Mock 模式都不需要 cloud API 金鑰。
+只有本機 GPU 與 Mock 模式不需要 cloud API 金鑰；Nebius 模式需要伺服器端金鑰，適用供應商服務與模型條款。
 
 使用紀錄與版本依據：
 

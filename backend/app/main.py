@@ -16,6 +16,7 @@ from .models import Health, RunRequest, RunState, Scenario
 from .providers import MockRuntimeProvider, RuntimeProvider, load_scenarios
 from .prototype_provider import PrototypeRuntimeProvider, FrameInput
 from .runtime import DemoRuntime, RunRecord, RuntimeCapacityError
+from .request_limits import MAX_IMAGE_BYTES, RequestBodyLimitMiddleware
 
 
 def create_app(
@@ -41,6 +42,7 @@ def create_app(
         version="0.1.0",
         lifespan=lifespan,
     )
+    application.add_middleware(RequestBodyLimitMiddleware, paths=('/api/run',))
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -59,6 +61,8 @@ def create_app(
     async def health() -> Health:
         if isinstance(provider, PrototypeRuntimeProvider):
             remote = await provider.health()
+            remote['second_opinion'] = {'configured': bool(provider.second_opinion_url),
+                                        'role': 'advisory_evaluator'}
             return Health(runtime="prototype", model="live" if remote.get("model_loaded") else str(remote.get("status", "unavailable")), prototype=remote)
         return Health()
 
@@ -71,8 +75,8 @@ def create_app(
         started = perf_counter()
         frame = None
         try:
-            if request.headers.get('content-type', '').startswith('multipart/form-data'):
-                async with request.form(max_files=1, max_fields=8, max_part_size=10 * 1024 * 1024) as form:
+            if request.headers.get('content-type', '').lower().startswith('multipart/form-data'):
+                async with request.form(max_files=1, max_fields=8, max_part_size=16 * 1024) as form:
                     guard = form.get('guard_enabled')
                     if guard not in ('true', 'false'):
                         raise HTTPException(422, 'The guard setting must be true or false.')
@@ -82,8 +86,8 @@ def create_app(
                     user_request = form.get('user_request')
                     if not isinstance(image, UploadFile) or image.content_type not in ('image/jpeg', 'image/png'):
                         raise HTTPException(422, 'Image missing or unsupported. Provide a JPEG or PNG image.')
-                    data = await image.read(10 * 1024 * 1024 + 1)
-                    if not data or len(data) > 10 * 1024 * 1024:
+                    data = await image.read(MAX_IMAGE_BYTES + 1)
+                    if not data or len(data) > MAX_IMAGE_BYTES:
                         raise HTTPException(413, 'The image must be nonempty and no larger than 10 MiB.')
                     if not isinstance(user_request, str) or not user_request.strip() or len(user_request) > 4000:
                         raise HTTPException(422, 'Enter a nonempty user request of no more than 4,000 characters.')
@@ -95,7 +99,7 @@ def create_app(
                                        (perf_counter() - started) * 1000, body.model_profile)
             else:
                 body = RunRequest.model_validate(await request.json())
-        except (ValidationError, ValueError, TypeError) as exc:
+        except (ValidationError, ValueError, TypeError, RecursionError) as exc:
             raise HTTPException(422, 'Invalid analysis request format. Check the input and try again.') from exc
         if isinstance(provider, PrototypeRuntimeProvider) and frame is None:
             raise HTTPException(422, 'No image provided. Model mode requires a camera frame or uploaded image.')

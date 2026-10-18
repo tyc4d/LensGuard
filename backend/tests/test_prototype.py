@@ -198,7 +198,7 @@ def test_no_mock_fallback(error):
     assert snapshots[-1]['action'] is None
     assert 'will not fall back to mock results' in snapshots[-1]['error']
     assert snapshots[-1]['runtime_metadata']['upstream_error'] == {
-        'type': type(error).__name__, 'detail': str(error),
+        'type': type(error).__name__,
     }
 
 
@@ -317,8 +317,8 @@ def test_image_required_and_unavailable_health():
         assert response.status_code == 422 and 'No image provided' in response.json()['detail']
 
 
-def test_upstream_error_is_chinese_while_original_health_and_run_diagnostics_remain():
-    detail = 'GPU_BUSY: another compute process is active.'
+def test_upstream_errors_are_localized_without_publishing_private_diagnostics():
+    detail = 'GPU_BUSY: another compute process is active. secret-token-private'
     def handler(request):
         if request.url.path == '/health':
             return httpx.Response(200, json={'status': 'error', 'model_loaded': False, 'error': detail})
@@ -327,14 +327,63 @@ def test_upstream_error_is_chinese_while_original_health_and_run_diagnostics_rem
     with TestClient(create_app(Settings(runtime='prototype'), provider)) as client:
         health = client.get('/api/health').json()['prototype']
         assert health['error'] == 'The GPU is in use by another application. Try again when resources are available.'
-        assert health['raw_error'] == detail
+        assert 'raw_error' not in health
+        assert 'secret-token-private' not in json.dumps(health)
         response = client.post('/api/run', files={'image': ('scene.jpg', b'image', 'image/jpeg')},
             data={'scenario_id': 'reservation-injection', 'guard_enabled': 'false', 'user_request': '測試請求'})
         snapshots = [json.loads(line[6:]) for line in client.get(f"/api/run/{response.json()['id']}/events").text.splitlines() if line.startswith('data: ')]
         final = snapshots[-1]
         assert final['error'] == health['error']
         assert final['status'] == 'failed' and final['outcome'] is None
-        assert final['runtime_metadata']['upstream_error'] == {'status_code': 503, 'detail': detail}
+        assert final['runtime_metadata']['upstream_error'] == {'status_code': 503}
+        assert 'secret-token-private' not in json.dumps(final)
+
+
+@pytest.mark.parametrize('payload', [None, [], 'not a health object'])
+def test_malformed_health_response_becomes_unavailable_not_a_server_error(payload):
+    provider = PrototypeRuntimeProvider('http://prototype.test', transport=httpx.MockTransport(
+        lambda request: httpx.Response(200, json=payload)))
+    with TestClient(create_app(Settings(runtime='prototype'), provider)) as client:
+        response = client.get('/api/health')
+        assert response.status_code == 200
+        assert response.json()['prototype']['status'] == 'unavailable'
+
+
+@pytest.mark.parametrize('error', [httpx.ConnectError('https://user:secret-token-private@host/?key=private'),
+                                 httpx.ReadTimeout('authorization=secret-token-private')])
+def test_transport_error_diagnostics_do_not_echo_credentials(error):
+    snapshots, _ = run(failure=error)
+    final = snapshots[-1]
+    assert final['status'] == 'failed'
+    assert final['runtime_metadata']['upstream_error'] == {'type': type(error).__name__}
+    assert 'secret-token-private' not in json.dumps(snapshots)
+
+
+@pytest.mark.parametrize('timing', [-1, float('nan'), float('inf')])
+def test_invalid_upstream_timing_is_rejected_before_publishing_snapshots(timing):
+    payload = remote()
+    payload['timing']['inference_ms'] = timing
+    # Explicit bytes model malformed JSON numbers a provider may emit.
+    transport = httpx.MockTransport(lambda request: httpx.Response(
+        200, content=json.dumps(payload), headers={'content-type': 'application/json'}))
+    provider = PrototypeRuntimeProvider('http://prototype.test', transport=transport)
+    with TestClient(create_app(Settings(runtime='prototype'), provider)) as client:
+        response = client.post('/api/run', files={'image': ('scene.jpg', b'frame', 'image/jpeg')},
+            data={'scenario_id': 'reservation-injection', 'guard_enabled': 'true', 'user_request': 'Call the restaurant.'})
+        final = [json.loads(line[6:]) for line in client.get(
+            f"/api/run/{response.json()['id']}/events").text.splitlines() if line.startswith('data: ')][-1]
+        assert final['status'] == 'failed'
+        assert final['action'] is None and final['outcome'] is None
+        assert final['runtime_metadata']['upstream_error'] == {'type': 'ValidationError'}
+
+
+@pytest.mark.parametrize('parsed', ['true', 'false', 1, 0])
+def test_upstream_parsed_flag_requires_a_boolean(parsed):
+    payload = remote()
+    payload['output']['parsed'] = parsed
+    snapshots, _ = run(payload)
+    assert snapshots[-1]['status'] == 'failed'
+    assert snapshots[-1]['outcome'] is None
 
 
 @pytest.mark.parametrize('native', [False, True])

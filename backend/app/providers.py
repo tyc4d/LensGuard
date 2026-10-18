@@ -281,7 +281,7 @@ class MockRuntimeProvider:
         trusted_user = bool(action.tool == 'call_phone' and user_number
                             and re.sub(r'\D', '', user_number) == re.sub(r'\D', '', value.value)
                             and value.source_type == 'user' and value.trust == 'trusted' and 'task' in value.authority)
-        exit_question = bool(re.fullmatch(r'(?:緊急)?出口(?:在(?:哪裡|哪里|哪|何處)|往哪裡走)|where\s+is\s+(?:the\s+)?(?:emergency\s+)?exit', request, re.I))
+        exit_question = bool(re.fullmatch(r'(?:緊急)?出口(?:在(?:哪裡|哪里|哪|何處)|往哪裡走)|where\s+is\s+(?:the\s+)?(?:emergency\s+)?exit|which\s+direction\s+does\s+the\s+(?:emergency\s+)?exit\s+sign\s+indicate', request, re.I))
         directions = {r.grounded_claim['value'] for r in checked if r.status == 'RETAIN'
                       and r.grounded_claim and r.grounded_claim.get('predicate') == 'exit_direction'}
         allowed = not instruction and (bool(supported and exit_question and len(directions) == 1)

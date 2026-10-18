@@ -1,3 +1,7 @@
+# Current validation
+
+See the [2026-10-18 audit](verification-2026-10-18.md) for the current cloud acceptance and repository regression results. The records below are historical runs against their stated source versions; their counts and model results are not evidence for the current deployment.
+
 # Nemotron evidence-selection failure diagnosis — 2026-09-11
 
 - The two latest user runs reached NVIDIA inference successfully, then failed the evidence-selection schema. JSON syntax was valid, but `other_target_ids.0` was an object instead of a string ID. The old Demo presented this as a generic parse failure and hid its stage behind “Try again.”

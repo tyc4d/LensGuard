@@ -1,0 +1,73 @@
+{
+  "original_public_pdf": {
+    "commit": "a61c7d8292f5105865723cd0b388e55ab0863036",
+    "path": "Technical documents/LensGuard_Paper.pdf",
+    "sha256": "45908f8f43d3990966526736ff7e3f7bc8f56e007a8dd4ffd0f2b51369b667e6",
+    "pages": 6,
+    "created": "2026-09-15T03:20:09Z"
+  },
+  "recovered_authoring_archive": {
+    "filename": "LensGuard_Hyperbloom_Overleaf.zip",
+    "dated": "2026-09-08",
+    "sha256": "4827ee3ed9c6f447c6c80a6c425d508a2f378641a6a7705f9c8bb17419b64f54",
+    "recovery_date": "2026-10-18"
+  },
+  "reconciliation_to_published_september_pdf": [
+    "Removed contest-specific right page header and PDF subject qualifier.",
+    "Removed Team Edgscase suffix, retaining Bo-An Hou and Yu-Chen Tsai.",
+    "Removed homepage metric strip.",
+    "Restored both Figure 5 photos from lossless embedded RGB/alpha image objects in the published PDF; applied its existing competing-stairs caption."
+  ],
+  "baseline_validation": {
+    "compiled_pages": 6,
+    "normalized_text_identical_pages": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ],
+    "page_5_difference": "one discretionary line-wrap hyphen; no substantive wording difference",
+    "binary_identical": false,
+    "binary_difference_reason": "Recompiled with pdfTeX 1.40.26 / TeX Live 2025 instead of original pdfTeX 1.40.29; timestamps, PDF object encoding and line wrapping can differ."
+  },
+  "iteration_scope": [
+    "Date historical experiments without changing outcomes or denominators.",
+    "Replace obsolete local-only current-runtime description with dated cloud source and evidence limits.",
+    "Update current product figure and add text-only advisory reviewer.",
+    "Record bounded live acceptance separately from historical research and offline repair checks.",
+    "Retypeset Figure 6 labels at readable print size; unchanged counts and chart roles.",
+    "Keep October exploratory 10 runs and preregistered 16 runs as separate cohorts."
+  ],
+  "preserved_authors": [
+    "Bo-An Hou",
+    "Yu-Chen Tsai"
+  ],
+  "body_font_pt": 9.45,
+  "source_file_sha256": {
+    "main_xelatex.tex": "1de3aedfafa78c23c2bc67615e07e856361635868fd7aa337252fb6cef5f7eb2",
+    "main.tex": "3378cb72cd0172425ff1d08dc52493091255ed3027885c6007aa514f7c59de29",
+    "data/current_runtime.json": "6f491a186547967c2bfae8dd1bf5f5cc0e03b93da2f74afba50f06a8458986ee",
+    "data/survey_aggregate.json": "e34dc055bb4756f83b19bbc38f99356df9cabe17eb959f53a597c68032f189fc",
+    "data/synthetic_results.json": "8cca3535c7396e51153fb56d1ec56c171c1c5413303b970ff9b7536ab3d5b810",
+    "data/physical_labeled_results.json": "72cdc41095fbc660ed63dfb0d698bddd6a5a3e129e8e54967d42385ebb934995",
+    "data/physical_format_results.json": "6644df5ad2143fd9b213e4d1094544b2a9d564b0c90f27f88b3c9677154dfc4a",
+    "tex/references.tex": "e49d1518c8f660cb9319edcec13bcd49e1bab8f9a81ff7add3945a322997ed1b",
+    "tex/preamble.tex": "1ad7b13999f9815dbbb94853c228a0b5b52dd2f547488941e988dc0a876cac0d",
+    "tex/01_problem.tex": "7463e8aee192fb2d4d9f9340a6b0994a0c458a5b47c476271cb05eaf1ba171cb",
+    "tex/02_method.tex": "0de9ed97ca5ea938b7ab68e6b4e6f1e9da0d0a726307e6449bbba5917aa4e876",
+    "tex/04_physical.tex": "00f62eb3d24bec0ba5186e48fe0020a3cd60c8755bcdcb35bbe1f76d485426f8",
+    "tex/05_survey_engineering.tex": "6c4766b755f34a59f9ec28af700aca55f2835abd0630e143904e161991558c07",
+    "tex/06_discussion.tex": "40a268c2a193d23ed78d30281e5fbe58af76316688e03994723dc02c1e10c2c4",
+    "tex/03_synthetic.tex": "82f993e0e66bbf6f830ce2b53c557a8ad9deed06e12cbd02796adc6202672426",
+    "figures/physical_call.png": "4d5ccec91d3ccb2c4c0ede90bf607247f6884c1ca4ae7eddb6956d159291bd5c",
+    "figures/physical_restaurant.png": "e3159e5a536385d1b0f52443c3fc7a54f76b2b2b9204e0ed6a0489618284d129",
+    "figures/charts/synthetic_attack.pdf": "0cb86316134f042603cdd10d178b5c493c9cab38d314418c799b32d7c86610f7",
+    "figures/charts/nvidia_smoke_matrix.pdf": "e739c3d5d62d314f7a5d254eb46a3f4134365711372b20cd6774aac4036bda3a",
+    "figures/charts/physical_coverage.pdf": "384bd79f60494cb3a91bd873ee745d1c1b364de0ff3d5eb7c91ba56a3b6542eb",
+    "figures/charts/normal_escalation.pdf": "30609cd5b649fcab4973a6ecb3795b3966107d2088d461e653074bc019efca56",
+    "figures/charts/survey_expectations.pdf": "d6dc22a6c4bd88cfecb7df157e209de74e11832bb430eac0ac47332314e7e544",
+    "figures/charts/physical_paired.pdf": "1b0139b1e5837bfa688753fa771d9a02a8b9ee04435bca2fd776a2d3cb331782"
+  },
+  "cloud_frozen_manifest_sha256": "6e2c374485a42002d7a5d4372a942d515a34ee3bd7ab17838406fb121c9c627d"
+}

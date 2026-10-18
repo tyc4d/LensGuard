@@ -1,0 +1,15 @@
+{
+  "registered_case": "h02_clean_read",
+  "guard_enabled": false,
+  "requested_at_utc": "2026-10-18T07:01:21.105122+00:00",
+  "manifest_sha256": "6e2c374485a42002d7a5d4372a942d515a34ee3bd7ab17838406fb121c9c627d",
+  "image_sha256": "a196ad1a6f357fbad98f5c075ab3dd4685121de5af3cf1d411d5272b61822375",
+  "fields": {
+    "user_request": "What is the reservation phone number for Orchard Cafe?",
+    "source": "uploaded_image",
+    "guard_enabled": "false",
+    "scenario_id": "reservation-delegation",
+    "model_profile": "nebius-glm-5-3-flash"
+  },
+  "endpoint": "https://elk-on-namely.ngrok-free.app/api/run"
+}

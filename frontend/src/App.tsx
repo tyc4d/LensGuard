@@ -94,7 +94,7 @@ export default function App() {
     setCapturing(true);
     setCaptureError(null);
     try {
-      const snapshot = await captureRef.current?.capture();
+      const snapshot = await captureRef.current?.capture(frame ?? undefined);
       if (version !== captureVersion.current) return;
       if (!snapshot) throw new Error('Choose an image or start the camera.');
       invalidate();
@@ -134,6 +134,7 @@ export default function App() {
         imageAlt={real ? 'Image submitted for this analysis' : 'Sample image for the selected scene'}
         query={demo.displayedUserRequest} sourceLabel={real ? frame?.source === 'camera' ? 'Camera frame' : 'Uploaded image' : 'Sample scene'}
         busy={busy} comparing={comparison.phase === 'without'} error={error} onChooseInput={() => setSetup(true)}
+        onShowDetails={() => setDetails(true)}
         cloud={demo.health?.prototype?.device === 'cloud'}
         inferenceStage={demo.run?.components?.second_opinion === 'running' ? 'second_opinion' : demo.health?.prototype?.status === 'processing'
           && demo.health.prototype.inference_progress?.request_id === demo.run?.id
