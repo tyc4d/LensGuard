@@ -4,7 +4,7 @@
 
 **Cited scene evidence. User-authorized actions.**
 
-Camera-enabled AI is moving from describing scenes toward helping people make decisions and act. Scene text can supply evidence; an instruction embedded in it should not become a command from the user. In future smart-glasses navigation, confusing scene content with user instructions could produce misleading guidance that someone follows in the physical world. Related research includes [VPI-Bench](https://arxiv.org/abs/2506.02456) on computer-use agents and [Devil in the Lens](https://arxiv.org/abs/2607.10269) on physical attacks and defenses for wearables.
+AI systems that use visual information to make decisions or act—including robots, smart glasses and visual computer-use agents—are moving beyond describing scenes. Scene text can supply evidence; an instruction embedded in it should not become a command from the user. Confusing scene content with user instructions could lead to incorrect digital operations, misleading physical guidance or unintended physical actions; future smart-glasses navigation is one example. Related research includes [VPI-Bench](https://arxiv.org/abs/2506.02456) on computer-use agents and [Devil in the Lens](https://arxiv.org/abs/2607.10269) on physical attacks and defenses for wearables.
 
 LensGuard is a research demo for camera assistants that separates seeing, citing and acting. An exit sign can support a cited direction; reading a phone number is separate from proposing a simulated call. Developers can inspect the model's proposal, supporting text, authorization decision and why clarification is needed.
 
