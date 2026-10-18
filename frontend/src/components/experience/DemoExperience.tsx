@@ -150,7 +150,7 @@ export function DemoExperience({ stage, presentation, baseline, showComparison, 
       </div>}
       {stage === 'input' && imageUrl && <span className="scene-source">{sourceLabel}</span>}
       {busy && <div className="analysis-indicator" role="status">
-        <span>{cloud ? phaseLabels[inferenceStage ?? ''] ?? 'Waiting for the cloud service'
+        <span>{inferenceStage === 'second_opinion' ? phaseLabels.second_opinion : cloud ? phaseLabels[inferenceStage ?? ''] ?? 'Waiting for the cloud service'
           : comparing ? 'Comparing the unprotected result' : 'Reading the scene'}…</span>
         <span aria-live="off"> {elapsed}s elapsed</span>
         {cloud && <small>{elapsed >= 60 ? 'The cloud is taking longer. A timeout will show an error; no result is substituted.'
