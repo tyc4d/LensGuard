@@ -5,7 +5,10 @@ export function SecondOpinion({ opinion }: { opinion: RunState['second_opinion']
   const label = opinion.status === 'agree' ? 'Agrees with primary model'
     : opinion.status === 'disagree' ? 'Disagrees with primary model'
     : opinion.status === 'uncertain' ? 'Uncertain'
-    : opinion.status === 'unavailable' ? 'Not configured' : 'Evaluator error';
+    : opinion.status === 'unavailable'
+      ? opinion.unavailable_reason === 'not_configured' ? 'Not configured'
+        : opinion.unavailable_reason === 'primary_output_invalid' ? 'Not run' : 'Not available'
+      : 'Evaluator error';
   return <section className={`second-opinion second-opinion--${opinion.status}`} aria-label="Independent second opinion">
     <h3>Independent second opinion</h3>
     <p><strong>{label}</strong>{opinion.model ? ` · ${opinion.model}` : ''}</p>

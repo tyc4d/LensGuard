@@ -145,6 +145,7 @@ class ValidationIssue(Schema):
 
 class SecondOpinion(Schema):
     status: Literal["agree", "disagree", "uncertain", "unavailable", "error"]
+    unavailable_reason: Literal["not_configured", "primary_output_invalid"] | None = None
     model: str | None = None
     provider: str | None = None
     provider_origin: str | None = None

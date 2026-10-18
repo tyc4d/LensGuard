@@ -107,6 +107,7 @@ export interface RunOutcome {
 export interface RunState {
   second_opinion?: {
     status: 'agree' | 'disagree' | 'uncertain' | 'unavailable' | 'error';
+    unavailable_reason?: 'not_configured' | 'primary_output_invalid' | null;
     model?: string | null; summary: string; checked_claims?: string[]; conflicts?: string[];
     provider?: string | null; provider_origin?: string | null; provider_model?: string | null;
     response_id?: string | null; provider_request_id?: string | null;

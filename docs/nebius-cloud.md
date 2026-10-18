@@ -3,7 +3,7 @@
 LensGuard can run on a CPU host with cloud inference on Nebius Token Factory:
 
 - **Primary vision model:** `zai-org/GLM-5.3-Flash` via the Responses API. It interprets the user-only task, observes the image, and selects existing citations in separate calls.
-- **Independent Nemotron text evaluator:** `backend/second_opinion_gateway.py` calls a configured NVIDIA Nemotron model via Chat Completions. It reviews the primary model's structured output and cited text, not the original image. Set `SECOND_OPINION_MODEL` to the Nemotron model available on your endpoint. The repository default is `nvidia/Nemotron-3-Ultra-550b-a55b`; this is a configuration default, not evidence that a deployed server ran it.
+- **Independent Nemotron text evaluator:** `backend/second_opinion_gateway.py` calls a configured NVIDIA Nemotron model via Chat Completions. It reviews the primary model's structured output and cited text, not the original image. Set `SECOND_OPINION_MODEL` to the Nemotron model available on your endpoint. The repository default is `nvidia/Nemotron-3.5-Super-VL`; this is a configuration default, not evidence that a deployed server ran it.
 - **Deterministic Guard:** the existing Prototype checks citations, grounding, task scope, and action authorization. The Demo displays that decision unchanged. An evaluator's `agree`, `disagree`, `uncertain`, timeout, or failure cannot grant authority or override the decision.
 
 The actual service order is primary model stages → deterministic Prototype checks → advisory evaluator → Demo display. The evaluator is an additional diagnostic layer, not a replacement for the gate. Guard OFF makes one independent primary request and can also receive an advisory review; its authorization checks remain bypassed for the simulation.
@@ -12,7 +12,7 @@ No CUDA, PyTorch, downloaded weights, or local GPU is required. Images and task 
 
 ## Reproducible setup
 
-The committed `prototype/` gitlink is `fc5003faebc0f51bd6b8959ab03ee5af0dac7400`, which includes `prototype_demo_server/nebius.py`. A clean recursive checkout contains the adapter; uncommitted submodule edits are not required.
+The committed `prototype/` gitlink is `87222bcecdb3fec68e36b3aee76df1face75c4fa`, which includes `prototype_demo_server/nebius.py`. A clean recursive checkout contains the adapter; uncommitted submodule edits are not required. Historical experiment records retain their original revisions and do not validate this newer pin.
 
 ```bash
 git clone --recurse-submodules https://github.com/tyc4d/LensGuard.git
@@ -35,10 +35,11 @@ NEBIUS_API_KEY=your_private_key
 NEBIUS_BASE_URL=https://api.tokenfactory.us-north1.nebius.com/v1/
 NEBIUS_MODEL=zai-org/GLM-5.3-Flash
 SECOND_OPINION_URL=http://127.0.0.1:8020
-SECOND_OPINION_MODEL=nvidia/Nemotron-3-Ultra-550b-a55b
+SECOND_OPINION_MODEL=nvidia/Nemotron-3.5-Super-VL
+SECOND_OPINION_BASE_URL=https://api.tokenfactory.us-north1.nebius.com/v1/
 ```
 
-Use a Nemotron model your Token Factory account actually supports; do not assume model access from a label or health endpoint. The primary and evaluator currently use the same Nebius key/base URL. Keep credentials server-side, out of Git, frontend variables, logs, screenshots, and submission artifacts. Leave `SECOND_OPINION_URL` empty only when intentionally running without the independent evaluator; the UI reports it as not configured.
+Use a Nemotron model your Token Factory account actually supports; do not assume model access from a label or health endpoint. The services share `NEBIUS_API_KEY`, but their endpoints are independent: the primary reads `NEBIUS_BASE_URL`, while the evaluator reads `SECOND_OPINION_BASE_URL`. Keep credentials server-side, out of Git, frontend variables, logs, screenshots, and submission artifacts. For the host Demo API, leave `SECOND_OPINION_URL` empty only when intentionally disabling review; see the separate Compose behavior below.
 
 Start each service in a separate terminal from the repository root:
 
@@ -61,7 +62,7 @@ Gateways load `backend/.env` first, then the root `.env` for missing values; exi
 
 ## Optional Docker frontend/API
 
-The Linux-only `docker-compose.live.yml` connects the Demo API to host gateways. Start the cloud gateway and evaluator on the host first. For the judged cloud setup, explicitly set `SECOND_OPINION_URL=http://127.0.0.1:8020` in the repository-root Compose `.env` (or command environment). This is separate from `backend/.env`. The existing loopback URL remains the default for compatibility; a custom URL overrides it. An explicitly empty variable disables review and must not be mistaken for the full cloud setup.
+The Linux-only `docker-compose.live.yml` connects the Demo API to host gateways. Start the cloud gateway and evaluator on the host first. This file currently sets the container's `SECOND_OPINION_URL` literally to `http://127.0.0.1:8020`. Setting a custom or empty value in the shell, repository-root `.env`, or `backend/.env` does not override that literal. A different container URL or disabled review requires an explicit Compose override of `backend.environment.SECOND_OPINION_URL`; the supplied file preserves its existing behavior. Its presence in Git does not establish that the public deployment uses Compose.
 
 The evaluator reads its own model/key settings. Setting `SECOND_OPINION_MODEL` only on the Demo container has no effect. Check that health reports review configured, then inspect an actual completed run; configuration alone does not establish a successful call. No production service is changed by these repository instructions.
 
@@ -77,7 +78,7 @@ The origin and provider IDs are server-reported correlation evidence, not crypto
 
 ## Timeouts and failures
 
-Primary requests use `reasoning.effort=low`, an 8,192-token output budget including reasoning, and `store=false`. Each primary analysis has a shared 240-second budget and no automatic retries. The evaluator uses a separate 60-second HTTP timeout, a 1,200-token output limit, and no automatic retries. Its token limit, latency, and availability may need tuning based on the selected model; incomplete responses are errors, not successful opinions.
+Primary requests use `reasoning.effort=low`, an 8,192-token output budget including reasoning, and `store=false`. Each primary analysis has a shared 240-second budget. Transport errors are not retried; JSON or schema failures in perception can trigger one format retry with the original image within that budget, as detailed below. The evaluator uses a separate 60-second HTTP read timeout, a 4,096-token output limit, and no automatic retries. Incomplete responses are errors, not successful opinions.
 
 The page shows elapsed time and primary stages correlated with the current run ID, then an explicit independent-review stage. Evaluator failure remains visible and does not alter the already-computed deterministic decision. Primary credentials, rate limits, connection errors, incomplete output, and invalid JSON fail explicitly; they never trigger a local-model or Mock fallback. Cloud model revisions are provider-managed.
 
@@ -159,7 +160,9 @@ it receives the primary model's structured output at `POST /v1/evaluate` and ret
 `agree`, `disagree`, or `uncertain`. This opinion is advisory and never grants
 authorization or replaces the deterministic Guard decision.
 Primary diagnostics are available before review starts. Model format failures
-skip the advisory review and are reported immediately.
+skip the advisory review and are reported immediately as review **Not run**;
+an absent evaluator URL is **Not configured**. Older responses without a reason
+are shown as **Not available**, with their original summary preserved.
 The page displays elapsed waiting time and the actual model stage, matched to
 the current run ID through service health polling. Credentials,
 rate limits, connection errors, incomplete output, and invalid model JSON fail
