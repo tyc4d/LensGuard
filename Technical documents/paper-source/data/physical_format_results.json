@@ -1,0 +1,132 @@
+{
+  "result_kind": "physical_direct_output_format",
+  "source_ids": [
+    "physical_direct_report"
+  ],
+  "design": {
+    "photos": 54,
+    "cohorts": {
+      "CALL": 6,
+      "RESTAURANT": 30,
+      "NAVIGATION": 11,
+      "SAFETY": 7
+    },
+    "formal_planned": 270,
+    "formal_saved": 270,
+    "complete": 265,
+    "strict_valid": 188,
+    "complete_malformed": 77,
+    "incomplete": 5,
+    "smoke_not_merged": 20,
+    "noncontaminated": {
+      "photos": 53,
+      "planned": 265,
+      "complete": 260,
+      "strict_valid": 184
+    },
+    "contamination_flagged_id": "IMG_3485.jpeg"
+  },
+  "models": [
+    {
+      "model_label_as_reported": "Gemma 3 4B",
+      "planned": 54,
+      "saved": 54,
+      "complete": 54,
+      "strict_valid": 0,
+      "incomplete": 0,
+      "complete_malformed": 54,
+      "api_runtime_failure": 0,
+      "noncontaminated": {
+        "planned": 53,
+        "complete": 53,
+        "strict_valid": 0
+      },
+      "latency_seconds": {
+        "p50": 1.686,
+        "p95": 2.349,
+        "scope_as_reported": "local"
+      }
+    },
+    {
+      "model_label_as_reported": "MiniCPM-V 4.5",
+      "planned": 54,
+      "saved": 54,
+      "complete": 54,
+      "strict_valid": 31,
+      "incomplete": 0,
+      "complete_malformed": 23,
+      "api_runtime_failure": 0,
+      "noncontaminated": {
+        "planned": 53,
+        "complete": 53,
+        "strict_valid": 30
+      },
+      "latency_seconds": {
+        "p50": 1.863,
+        "p95": 2.68,
+        "scope_as_reported": "local"
+      }
+    },
+    {
+      "model_label_as_reported": "Qwen3-VL 8B",
+      "planned": 54,
+      "saved": 54,
+      "complete": 54,
+      "strict_valid": 54,
+      "incomplete": 0,
+      "complete_malformed": 0,
+      "api_runtime_failure": 0,
+      "noncontaminated": {
+        "planned": 53,
+        "complete": 53,
+        "strict_valid": 53
+      },
+      "latency_seconds": {
+        "p50": 8.488,
+        "p95": 9.703,
+        "scope_as_reported": "local"
+      }
+    },
+    {
+      "model_label_as_reported": "GPT-5.6 Sol",
+      "planned": 54,
+      "saved": 54,
+      "complete": 49,
+      "strict_valid": 49,
+      "incomplete": 5,
+      "complete_malformed": 0,
+      "api_runtime_failure": 0,
+      "noncontaminated": {
+        "planned": 53,
+        "complete": 48,
+        "strict_valid": 48
+      },
+      "latency_seconds": {
+        "p50": 4.296,
+        "p95": 16.156,
+        "scope_as_reported": "cloud_api"
+      }
+    },
+    {
+      "model_label_as_reported": "Gemini 3.1 Flash-Lite",
+      "planned": 54,
+      "saved": 54,
+      "complete": 54,
+      "strict_valid": 54,
+      "incomplete": 0,
+      "complete_malformed": 0,
+      "api_runtime_failure": 0,
+      "noncontaminated": {
+        "planned": 53,
+        "complete": 53,
+        "strict_valid": 53
+      },
+      "latency_seconds": {
+        "p50": 6.746,
+        "p95": 10.641,
+        "scope_as_reported": "cloud_api"
+      }
+    }
+  ],
+  "endpoint": "completion_and_fixed_schema_validity"
+}

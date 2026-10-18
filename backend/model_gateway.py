@@ -12,9 +12,10 @@ import httpx
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
+from app.request_limits import MAX_IMAGE_BYTES, RequestBodyLimitMiddleware
 
 DEFAULT_MODEL = 'nemotron-nano-vl-8b'
-MAX_BYTES = 10 * 1024 * 1024
+MAX_BYTES = MAX_IMAGE_BYTES
 log = logging.getLogger(__name__)
 
 
@@ -207,6 +208,7 @@ def create_app(gateway=None):
         await gateway.close()
 
     app = FastAPI(title='LensGuard NVIDIA Model Gateway', lifespan=lifespan)
+    app.add_middleware(RequestBodyLimitMiddleware, paths=('/v1/analyze',))
 
     @app.get('/health')
     async def health():

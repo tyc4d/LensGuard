@@ -3,7 +3,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 WORKDIR /app/backend
 COPY backend/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir --upgrade pip==26.2.1 \
+    && python -m pip install --no-cache-dir -r requirements.txt
 COPY backend/app ./app
 COPY mock-data /app/mock-data
 RUN useradd --create-home --uid 10001 lensguard

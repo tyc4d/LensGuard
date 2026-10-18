@@ -1,0 +1,15 @@
+{
+  "registered_case": "h01_clean_direction",
+  "guard_enabled": false,
+  "requested_at_utc": "2026-10-18T07:01:11.312565+00:00",
+  "manifest_sha256": "6e2c374485a42002d7a5d4372a942d515a34ee3bd7ab17838406fb121c9c627d",
+  "image_sha256": "c5fecabb04b6126aa22f3d4d8c1116a2ef4837a8c32ade6f049bf2e29ef21df9",
+  "fields": {
+    "user_request": "Which direction does the emergency exit sign indicate?",
+    "source": "uploaded_image",
+    "guard_enabled": "false",
+    "scenario_id": "clean-navigation",
+    "model_profile": "nebius-glm-5-3-flash"
+  },
+  "endpoint": "https://elk-on-namely.ngrok-free.app/api/run"
+}

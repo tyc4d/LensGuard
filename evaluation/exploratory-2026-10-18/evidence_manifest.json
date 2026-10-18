@@ -1,0 +1,145 @@
+{
+  "tested_at_utc": "2026-10-18T06:30:49Z/2026-10-18T06:35:29Z",
+  "target": "https://elk-on-namely.ngrok-free.app/",
+  "captured_live_run_count": 10,
+  "actual_camera_tested": false,
+  "real_external_actions": false,
+  "provider_endpoint_proven": false,
+  "model_ids_reported_by_server": [
+    "zai-org/GLM-5.3-Flash",
+    "nvidia/Nemotron-3.5-Super-VL"
+  ],
+  "files": [
+    {
+      "filename": "normal_exit_on_ui.json",
+      "sha256": "b501e14ffe5840061fb5690bf4ad98c2c5006153d166e44145714bbc664b9cc2",
+      "bytes": 13368
+    },
+    {
+      "filename": "injected_exit_on_ui.json",
+      "sha256": "9755db007f19639716adfe315aa9952f50185856f5bd656c6b1ca46850a6a1ea",
+      "bytes": 16541
+    },
+    {
+      "filename": "normal_direction_on.json",
+      "sha256": "9e389d3211801afd407c7f2550fb61b4f5d7a36b85f21043b99fe88cbbc16c57",
+      "bytes": 23415
+    },
+    {
+      "filename": "normal_direction_off.json",
+      "sha256": "5fafde7cb6b4c3b29a6f5e027fc4c3741886db4906186d47b2f478ea01855e8e",
+      "bytes": 8405
+    },
+    {
+      "filename": "injected_direction_on.json",
+      "sha256": "6333b08dd1916d05642fe021f79c285aaf346f59fcefe29bd85d5066205b4681",
+      "bytes": 25342
+    },
+    {
+      "filename": "injected_direction_off.json",
+      "sha256": "8f5804366f2c4dba276ca7d11f94881cd1e498156ce7a6ec55cdd111f2960e90",
+      "bytes": 8290
+    },
+    {
+      "filename": "normal_phone_call_on.json",
+      "sha256": "e6ba4d5024d6a04297f030a03eb07770d3c28fd0373b0fea16846043514947b2",
+      "bytes": 27278
+    },
+    {
+      "filename": "injected_phone_call_on.json",
+      "sha256": "6d7b3850da62c489dee99cb48d1c4b0825fa427bc99d3a0d6b9319f131d7f2d6",
+      "bytes": 27452
+    },
+    {
+      "filename": "injected_phone_read_on.json",
+      "sha256": "23ec35bd38187acb6a84bd6c42311bc66ec94ee4d43367dd77d05e8698276396",
+      "bytes": 26466
+    },
+    {
+      "filename": "injected_phone_call_off.json",
+      "sha256": "de56d30b098f257a5628526fc89c7e6aa5d3cc1671535483412f318f337882f0",
+      "bytes": 7757
+    },
+    {
+      "filename": "direction_matrix.json",
+      "sha256": "d4147f125bfcb3fa434f898e004e0dc40470c48c9c012fd712115ba7c064b04d",
+      "bytes": 10246
+    },
+    {
+      "filename": "authorization_matrix.json",
+      "sha256": "cdc4b7746c55e12fae7d08bdf973d843382dd4d42762555e93dae55fb6582432",
+      "bytes": 11207
+    },
+    {
+      "filename": "normal_exit.png",
+      "sha256": "f35a5cb68c102c510d5b1433748ef0d01f61f83132b1a5f33c751958699d94e7",
+      "bytes": 29418
+    },
+    {
+      "filename": "injected_exit.png",
+      "sha256": "fd7eb429781922071eab6f6b5aa5a88b74b7f3052c49478ee6fe5d2a7ef147a8",
+      "bytes": 51261
+    },
+    {
+      "filename": "normal_phone.png",
+      "sha256": "9f34a20492fd5878d405e39b42aaaf1b222ccc68b741c97b20c3927a2cbe744a",
+      "bytes": 36681
+    },
+    {
+      "filename": "injected_phone.png",
+      "sha256": "82792abc1829dbfaad921fad54402cbeaa5552d708ea9d591a2e565239010ec8",
+      "bytes": 60786
+    },
+    {
+      "filename": "injected_where_comparison.jpg",
+      "sha256": "1c27cbcee9c86b3efc64b0f7b9a59d712a35d05c17bb998e377be597791bda96",
+      "bytes": 52159
+    },
+    {
+      "filename": "LensGuard_Live_Acceptance_Report.md",
+      "sha256": "70d8fd40f7bc39d0601afb35b99218f513cbd73c6b157c552a366c1a03761e51",
+      "bytes": 11080
+    },
+    {
+      "filename": "normal_direction_off_request.json",
+      "sha256": "7a45411047056b05c7ee648fb1a3d69966c94544100b48651b29f7418ea49c75",
+      "bytes": 341
+    },
+    {
+      "filename": "injected_phone_call_off_request.json",
+      "sha256": "9c18a1ec61f093aea01cb129970aa29c17836f988b6683b4eb36907baa2576d9",
+      "bytes": 382
+    },
+    {
+      "filename": "injected_phone_call_on_request.json",
+      "sha256": "ffae9f5264e183ed485fc65d21e6c3769e24ae77e725145f1d654a95c38e68e9",
+      "bytes": 380
+    },
+    {
+      "filename": "normal_phone_call_on_request.json",
+      "sha256": "3ed6fab3cf6b720d88ebaa0c35ae30620871115e58a066a6ae9b016502f40002",
+      "bytes": 377
+    },
+    {
+      "filename": "injected_direction_off_request.json",
+      "sha256": "47be1f5ecdf67484e65a878143bab21f1adbc348df2a94c106b3f118a0d82d77",
+      "bytes": 349
+    },
+    {
+      "filename": "injected_phone_read_on_request.json",
+      "sha256": "50e69b8ffb71565dd800381e16879777afdbe7ea943cb009880c122e81aef353",
+      "bytes": 369
+    },
+    {
+      "filename": "normal_direction_on_request.json",
+      "sha256": "fa5064108a0c17374c24c1120bd2ec743ce31981a4e42ff8df25de9728ef11a3",
+      "bytes": 339
+    },
+    {
+      "filename": "injected_direction_on_request.json",
+      "sha256": "3c6be91b8310f04ce45e4320b1ca4094858d153482c61d73139b0fe8c6183116",
+      "bytes": 347
+    }
+  ],
+  "publication_note": "Report environment wording shortened for publication. Captured responses, requests, images and results are unchanged."
+}

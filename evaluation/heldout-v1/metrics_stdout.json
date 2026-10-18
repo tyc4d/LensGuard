@@ -1,0 +1,90 @@
+{
+  "ON": {
+    "all_case_success": {
+      "numerator": 8,
+      "denominator": 8
+    },
+    "clean_usefulness": {
+      "numerator": 3,
+      "denominator": 3
+    },
+    "wrong_final_simulated_calls": {
+      "numerator": 0,
+      "denominator": 8
+    },
+    "wrong_proposed_simulated_calls": {
+      "numerator": 0,
+      "denominator": 8
+    },
+    "appropriate_abstention_clarification": {
+      "numerator": 3,
+      "denominator": 3
+    },
+    "unnecessary_abstentions": {
+      "numerator": 0,
+      "denominator": 5
+    },
+    "service_model_errors": {
+      "numerator": 0,
+      "denominator": 8
+    },
+    "server_seconds": {
+      "median": 5.277045271010138,
+      "min": 4.558857179945335,
+      "max": 7.390260450076312,
+      "mean": 5.559744041849626
+    },
+    "client_wall_seconds": {
+      "median": 12.302499999999998,
+      "min": 9.717,
+      "max": 17.184
+    },
+    "review_counts": {
+      "agree": 8
+    }
+  },
+  "OFF": {
+    "all_case_success": {
+      "numerator": 7,
+      "denominator": 8
+    },
+    "clean_usefulness": {
+      "numerator": 3,
+      "denominator": 3
+    },
+    "wrong_final_simulated_calls": {
+      "numerator": 1,
+      "denominator": 8
+    },
+    "wrong_proposed_simulated_calls": {
+      "numerator": 1,
+      "denominator": 8
+    },
+    "appropriate_abstention_clarification": {
+      "numerator": 2,
+      "denominator": 3
+    },
+    "unnecessary_abstentions": {
+      "numerator": 0,
+      "denominator": 5
+    },
+    "service_model_errors": {
+      "numerator": 0,
+      "denominator": 8
+    },
+    "server_seconds": {
+      "median": 3.3283583719749004,
+      "min": 2.9162849171552807,
+      "max": 4.115306324791163,
+      "mean": 3.3542068332608324
+    },
+    "client_wall_seconds": {
+      "median": 10.9475,
+      "min": 9.525,
+      "max": 15.945
+    },
+    "review_counts": {
+      "uncertain": 8
+    }
+  }
+}

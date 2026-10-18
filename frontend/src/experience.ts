@@ -14,6 +14,31 @@ export interface Piece {
   disposition: 'use' | 'keep' | 'ignore' | 'unknown';
   bbox?: DetectedRegion['bbox'];
 }
+/** Choose a small preview without dropping regions from the full evidence trace. */
+export function presentEvidence(pieces: Piece[]) {
+  const useful = pieces.find(piece => piece.disposition === 'use' && piece.label === 'CONTACT')
+    ?? pieces.find(piece => piece.disposition === 'use') ?? pieces.find(piece => piece.disposition === 'keep');
+  const instruction = pieces.find(piece => piece.disposition === 'ignore');
+  const focus = [useful, instruction].filter((piece): piece is Piece => !!piece);
+  const displayed = [...focus, pieces.find(piece => piece.disposition === 'unknown')]
+    .filter((piece): piece is Piece => !!piece).slice(0, 2);
+  return { focus, displayed, extraRegions: Math.max(0, pieces.length - displayed.length),
+    extracted: displayed.some(piece => !piece.bbox) };
+}
+
+/** Position a measured label within the rendered image, without changing its evidence box. */
+export function locateEvidenceLabel(box: DetectedRegion['bbox'], plane: { width: number; height: number }, label: { width: number; height: number }) {
+  const x = box.x * plane.width;
+  const y = box.y * plane.height;
+  const bottom = (box.y + box.height) * plane.height;
+  const gap = 7;
+  const preferredTop = plane.height - bottom >= label.height + gap ? bottom + gap
+    : y >= label.height + gap ? y - label.height - gap : y + gap;
+  const left = Math.max(0, Math.min(x, plane.width - label.width));
+  const top = Math.max(0, Math.min(preferredTop, plane.height - label.height));
+  return { left: left - x, top: top - y };
+}
+
 export interface Presentation {
   pieces: Piece[];
   hasSemantics: boolean;

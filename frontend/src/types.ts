@@ -105,7 +105,13 @@ export interface RunOutcome {
 }
 
 export interface RunState {
-  second_opinion?: { status: 'agree' | 'disagree' | 'uncertain' | 'unavailable' | 'error'; model?: string | null; summary: string; checked_claims?: string[]; conflicts?: string[] } | null;
+  second_opinion?: {
+    status: 'agree' | 'disagree' | 'uncertain' | 'unavailable' | 'error';
+    model?: string | null; summary: string; checked_claims?: string[]; conflicts?: string[];
+    provider?: string | null; provider_origin?: string | null; provider_model?: string | null;
+    response_id?: string | null; provider_request_id?: string | null;
+    elapsed_ms?: number | null; usage?: Record<string, number>;
+  } | null;
   semantic_regions?: SemanticRegion[];
   retained_evidence_ids?: string[];
   denied_instruction_ids?: string[];
@@ -144,6 +150,7 @@ export interface Health {
   model: string;
   prototype?: {
     device?: string;
+    second_opinion?: { configured: boolean; role: 'advisory_evaluator' };
     inference_progress?: { request_id: string | null; stage: string | null };
     model_profile?: string;
     default_model?: ModelProfile;

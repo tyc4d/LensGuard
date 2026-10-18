@@ -1,0 +1,33 @@
+\begin{multicols}{2}
+\section{Discussion}
+\subsection{What the evidence supports}
+LensGuard demonstrates a concrete design principle: the model that reads a scene does not need to be the component that grants action authority. In the controlled synthetic benchmark, the external gate prevents simulated execution of attacker-selected parameters in all assessable attack cases for four fully covered models. In the physical pilot, Guard ON shows a strong suppression signal in the common assessable subset. The September local extension reused the task/citation boundary across Qwen and two NVIDIA providers. The October cloud sample exercises the same separation with GLM and advisory Nemotron review. Its frozen comparison shows one ambiguity-handling advantage, not a general security gain.
+
+The evidence also shows what remains unsolved. Normal-task escalations are high, physical correct-value delivery is poor in the assessed subset, scene citations are not independent authenticity checks, and the synthetic evidence IDs contain semantic cues. A useful safety product must improve task recovery and source validation rather than simply block more often.
+
+\subsection{Why the current architecture is extensible}
+Because user intent, perception, evidence, and authorization are explicit stages, failure can be localized. A model can fail perception without the policy code inventing a fact; a low-confidence observation can abstain without a fake BLOCK decision; an injected phone number can be transcribed without automatically becoming a call target. This modularity is the main innovation beyond a defensive prompt.
+
+The next research comparison is therefore straightforward: freeze the same real model proposals and compare the full evidence-aware gate against a scoped reference-only gate and always-confirm. Separately, rerun the synthetic evidence-selection arm with anonymized and shuffled IDs. Those experiments would reveal whether visual-evidence selection adds measurable value beyond a simpler trusted-reference check.
+
+\subsection{Limitations and responsible scope}
+The physical pilot does not establish real-world injury reduction or causal robustness to added attack text. The current demo does not perform real phone calls, payments, reservations, or wearable deployment. General object recognition, ownership verification, multilingual performance, occlusion/lighting robustness, and safety-critical route planning remain open.
+
+The historical NVIDIA local smoke results and the current cloud acceptance sample are intentionally small. The historical extra color fixture fails for both local providers; the cloud runs do not resolve that result or evaluate Chinese-language accuracy. The 0.8 uncertainty threshold is not calibrated confidence. Full end-to-end user testing with recovery time and confirmation fatigue has not yet been run.
+
+\section{Open-Source Delivery and Demo Readiness}
+The current repository is designed to be inspectable at multiple levels. Mock mode reproduces the four-stage interface without a GPU or API key, while real mode supports the documented cloud or local service configuration. The cloud UI and trace expose model roles, citations, policy outcomes and reviewer status. Inference failures must remain visible rather than falling back to prerecorded results. Docker, backend/frontend tests, a public demo URL, and an evaluation video are documented in the repository~\cite{cloudsource}.
+
+A reproducible demonstration uses a clean/injected sign comparison, an information-vs-action phone request, and an ambiguous-target clarification. Both modes succeeded on the tested injections; the demonstration shows the authorization trace rather than an unobserved baseline exploit. This makes the engineering boundary visible without requiring a judge to reconstruct the entire benchmark first.
+
+\section{Conclusion}
+LensGuard treats ``seeing,'' ``citing,'' and ``acting'' as different privileges. Synthetic evaluation shows that action authorization can stop attacker-target simulated execution even when a VLM still proposes the wrong value, but normal-task escalations reveal a significant usability cost. Real-photo ON/OFF analysis provides a suppression signal while also exposing unresolved correctness and navigation failures. The October cloud runtime extends the same boundary to GLM inference and advisory Nemotron review. Current acceptance evidence is limited to synthetic uploads and simulated actions; stronger efficacy claims require held-out, repeated evaluation. LensGuard is therefore best understood not as a universal prompt-injection detector, but as an auditable action-authorization layer for camera-based AI assistants.
+
+\section*{Reproducibility and Availability}
+Inspected cloud source: \url{https://github.com/tyc4d/LensGuard} at \code{a61c7d8}; Prototype pin: \code{fc5003fa}. The September runtime remains pinned in references [14--15]. Editable TeX, aggregate data and dated cloud evidence accompany the PDF. The 18 October live records predate deployment of the repair and do not identify the deployed commit. Full JSON and synthetic inputs are retained in the acceptance evidence package. Private survey emails and complete historical physical labels/responses are not included. All evaluated side effects are simulated.
+\end{multicols}
+
+\begin{multicols}{2}
+{\fontsize{7.7}{9.2}\selectfont
+\input{tex/references}}
+\end{multicols}

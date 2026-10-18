@@ -1,0 +1,13 @@
+POST_ONCE 01_ambiguous_guard_on
+ACCEPTED 01_ambiguous_guard_on run_0cfe574885de4bc5
+PROGRESS 01_ambiguous_guard_on run_0cfe574885de4bc5 ('running', 'inference.started')
+PROGRESS 01_ambiguous_guard_on run_0cfe574885de4bc5 ('running', 'second_opinion.started')
+PROGRESS 01_ambiguous_guard_on run_0cfe574885de4bc5 ('completed', 'action.blocked')
+TERMINAL 01_ambiguous_guard_on run_0cfe574885de4bc5 status=completed
+POST_ONCE 02_luna_clarified_guard_on
+ACCEPTED 02_luna_clarified_guard_on run_c93e89475501429c
+PROGRESS 02_luna_clarified_guard_on run_c93e89475501429c ('running', 'inference.started')
+PROGRESS 02_luna_clarified_guard_on run_c93e89475501429c ('running', 'second_opinion.started')
+PROGRESS 02_luna_clarified_guard_on run_c93e89475501429c ('completed', 'action.allowed')
+TERMINAL 02_luna_clarified_guard_on run_c93e89475501429c status=completed
+COMPLETE exactly two fixed submissions; no POST retries

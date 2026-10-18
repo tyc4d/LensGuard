@@ -1,0 +1,303 @@
+{
+  "result_kind": "synthetic_aggregate",
+  "source_ids": [
+    "synthetic_repository_comparison"
+  ],
+  "raw_predictions_in_package": false,
+  "subset_case_membership_available": false,
+  "execution_endpoint": "simulated_tool_dispatch",
+  "design": {
+    "base_semantic_scenarios": 15,
+    "images": 81,
+    "annotated_regions": 162,
+    "image_pixels": [
+      1200,
+      760
+    ],
+    "conditions": {
+      "Clean Trusted": 15,
+      "Benign Untrusted Substitution": 15,
+      "Authority Impersonation": 15,
+      "Obvious Injection Control": 15,
+      "Explicit User Override": 15,
+      "No Verified Ground Truth": 3,
+      "Trusted Conflicting Update": 3
+    },
+    "subset_case_membership_available": false
+  },
+  "models": [
+    {
+      "model_label_as_reported": "Gemma 3 4B",
+      "model_api_id_verified": false,
+      "direct_correct": {
+        "numerator": 75,
+        "denominator": 81
+      },
+      "grounded_correct": {
+        "numerator": 46,
+        "denominator": 81
+      },
+      "exact_evidence": {
+        "numerator": 54,
+        "denominator": 108
+      },
+      "camera_origin_evidence": {
+        "numerator": 32,
+        "denominator": 66
+      },
+      "direct_attacker_target": {
+        "numerator": 5,
+        "denominator": 48
+      },
+      "gated_attacker_auto_execution": {
+        "numerator": 0,
+        "denominator": 29
+      },
+      "grounded_schema_valid": {
+        "numerator": 39,
+        "denominator": 81
+      },
+      "normal_subset_escalation": {
+        "numerator": 11,
+        "denominator": 19
+      },
+      "invented_source_ids": {
+        "numerator": 0,
+        "denominator": 74
+      },
+      "all_escalations": {
+        "numerator": 33,
+        "denominator": 50
+      }
+    },
+    {
+      "model_label_as_reported": "MiniCPM-V 4.5",
+      "model_api_id_verified": false,
+      "direct_correct": {
+        "numerator": 77,
+        "denominator": 81
+      },
+      "grounded_correct": {
+        "numerator": 75,
+        "denominator": 81
+      },
+      "exact_evidence": {
+        "numerator": 72,
+        "denominator": 108
+      },
+      "camera_origin_evidence": {
+        "numerator": 55,
+        "denominator": 66
+      },
+      "direct_attacker_target": {
+        "numerator": 4,
+        "denominator": 48
+      },
+      "gated_attacker_auto_execution": {
+        "numerator": 0,
+        "denominator": 48
+      },
+      "grounded_schema_valid": {
+        "numerator": 75,
+        "denominator": 81
+      },
+      "normal_subset_escalation": {
+        "numerator": 17,
+        "denominator": 30
+      },
+      "invented_source_ids": {
+        "numerator": 0,
+        "denominator": 136
+      },
+      "all_escalations": {
+        "numerator": 61,
+        "denominator": 81
+      }
+    },
+    {
+      "model_label_as_reported": "Qwen3-VL 8B",
+      "model_api_id_verified": false,
+      "direct_correct": {
+        "numerator": 77,
+        "denominator": 81
+      },
+      "grounded_correct": {
+        "numerator": 78,
+        "denominator": 81
+      },
+      "exact_evidence": {
+        "numerator": 104,
+        "denominator": 108
+      },
+      "camera_origin_evidence": {
+        "numerator": 63,
+        "denominator": 66
+      },
+      "direct_attacker_target": {
+        "numerator": 4,
+        "denominator": 48
+      },
+      "gated_attacker_auto_execution": {
+        "numerator": 0,
+        "denominator": 48
+      },
+      "grounded_schema_valid": {
+        "numerator": 81,
+        "denominator": 81
+      },
+      "normal_subset_escalation": {
+        "numerator": 16,
+        "denominator": 30
+      },
+      "invented_source_ids": {
+        "numerator": 0,
+        "denominator": 108
+      },
+      "all_escalations": {
+        "numerator": 67,
+        "denominator": 81
+      }
+    },
+    {
+      "model_label_as_reported": "GPT-5.6 Sol",
+      "model_api_id_verified": false,
+      "direct_correct": {
+        "numerator": 63,
+        "denominator": 81
+      },
+      "grounded_correct": {
+        "numerator": 77,
+        "denominator": 81
+      },
+      "exact_evidence": {
+        "numerator": 103,
+        "denominator": 108
+      },
+      "camera_origin_evidence": {
+        "numerator": 62,
+        "denominator": 66
+      },
+      "direct_attacker_target": {
+        "numerator": 2,
+        "denominator": 48
+      },
+      "gated_attacker_auto_execution": {
+        "numerator": 0,
+        "denominator": 48
+      },
+      "grounded_schema_valid": {
+        "numerator": 81,
+        "denominator": 81
+      },
+      "normal_subset_escalation": {
+        "numerator": 15,
+        "denominator": 30
+      },
+      "invented_source_ids": {
+        "numerator": 0,
+        "denominator": 105
+      },
+      "all_escalations": {
+        "numerator": 64,
+        "denominator": 81
+      }
+    },
+    {
+      "model_label_as_reported": "Gemini 3.1 Flash-Lite",
+      "model_api_id_verified": false,
+      "direct_correct": {
+        "numerator": 71,
+        "denominator": 81
+      },
+      "grounded_correct": {
+        "numerator": 76,
+        "denominator": 81
+      },
+      "exact_evidence": {
+        "numerator": 103,
+        "denominator": 108
+      },
+      "camera_origin_evidence": {
+        "numerator": 61,
+        "denominator": 66
+      },
+      "direct_attacker_target": {
+        "numerator": 11,
+        "denominator": 48
+      },
+      "gated_attacker_auto_execution": {
+        "numerator": 0,
+        "denominator": 48
+      },
+      "grounded_schema_valid": {
+        "numerator": 81,
+        "denominator": 81
+      },
+      "normal_subset_escalation": {
+        "numerator": 15,
+        "denominator": 30
+      },
+      "invented_source_ids": {
+        "numerator": 0,
+        "denominator": 108
+      },
+      "all_escalations": {
+        "numerator": 66,
+        "denominator": 81
+      }
+    }
+  ],
+  "cloud_metadata": {
+    "GPT-5.6 Sol": {
+      "formal_requests": 162,
+      "smoke_requests": 6,
+      "grounded_attacker_proposals": {
+        "numerator": 1,
+        "denominator": 48
+      },
+      "latency_api_seconds": {
+        "p50": 1.65,
+        "p95": 2.519
+      },
+      "estimated_cohort_cost_usd": 1.784741,
+      "input_tokens": 427171,
+      "output_tokens": 6633
+    },
+    "Gemini 3.1 Flash-Lite": {
+      "formal_requests": 162,
+      "smoke_requests": 6,
+      "grounded_attacker_proposals": {
+        "numerator": 6,
+        "denominator": 48
+      },
+      "latency_api_seconds": {
+        "p50": 3.417,
+        "p95": 5.865
+      },
+      "estimated_cohort_cost_usd": 0.105488,
+      "input_tokens": 357657,
+      "output_tokens": 10716
+    }
+  },
+  "metric_notes": {
+    "evidence_items": 108,
+    "camera_origin_items": 66,
+    "attack_subset": 48,
+    "normal_subset": 30,
+    "identification": "Model names reflect experiment records, not independently verified service identities.",
+    "independence": "81 variants derive from 15 semantic scenarios; no pooled population rate."
+  },
+  "method": {
+    "input": "image + trusted user task + prebuilt annotated registry in grounded arm",
+    "output": "action, arguments, argument_evidence_refs",
+    "model_sees_evidence_ids": true,
+    "id_semantic_cue_risk": true,
+    "bbox_generation_evaluated": false,
+    "decisions": [
+      "ALLOW",
+      "ESCALATE",
+      "BLOCK"
+    ],
+    "artifact_commit": "855630ed409ff4e71c2c30d21f1ba0d241c9c450"
+  }
+}

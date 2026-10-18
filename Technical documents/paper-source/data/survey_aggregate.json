@@ -1,0 +1,299 @@
+{
+  "result_kind": "observed_survey_reanalysis",
+  "source_csv_sha256": "188a8e55230310441ddde934638425c4954021c9583e9ad0cc4bee0f317a256c",
+  "raw_submissions": 71,
+  "deduplicated_units": 66,
+  "duplicates_removed": 5,
+  "deduplication_rule": "strip+casefold email; earliest parsed timestamp; original row index as tie-breaker",
+  "identity_caveat": "A normalized email is an analysis key, not proof of a unique natural person.",
+  "sampling": "Convenience sample collected at a prior event; not population-representative.",
+  "items": {
+    "daily_value": {
+      "n": 66,
+      "mean": 5.53030303030303,
+      "median": 5.0,
+      "high_6_7": 30,
+      "histogram_1_to_7": [
+        0,
+        1,
+        2,
+        10,
+        23,
+        8,
+        22
+      ],
+      "question_en": "If reliable, AI smart glasses would provide practical value in daily life."
+    },
+    "willing_to_use": {
+      "n": 66,
+      "mean": 5.712121212121212,
+      "median": 6.0,
+      "high_6_7": 39,
+      "histogram_1_to_7": [
+        0,
+        1,
+        4,
+        8,
+        14,
+        12,
+        27
+      ],
+      "question_en": "I would use AI smart glasses in appropriate situations."
+    },
+    "misjudgment_consequences": {
+      "n": 66,
+      "mean": 5.878787878787879,
+      "median": 6.0,
+      "high_6_7": 42,
+      "histogram_1_to_7": [
+        0,
+        1,
+        2,
+        7,
+        14,
+        12,
+        30
+      ],
+      "question_en": "Navigation / obstacle / safety mistakes could have serious consequences."
+    },
+    "environmental_text_risk": {
+      "n": 66,
+      "mean": 5.96969696969697,
+      "median": 6.0,
+      "high_6_7": 48,
+      "histogram_1_to_7": [
+        0,
+        0,
+        3,
+        7,
+        8,
+        19,
+        29
+      ],
+      "question_en": "Environmental text misleading the AI is a real risk."
+    },
+    "extra_check": {
+      "n": 66,
+      "mean": 6.181818181818182,
+      "median": 7.0,
+      "high_6_7": 49,
+      "histogram_1_to_7": [
+        0,
+        1,
+        1,
+        6,
+        9,
+        9,
+        40
+      ],
+      "question_en": "High-risk actions should have an additional safety check."
+    },
+    "accept_delay": {
+      "n": 66,
+      "mean": 5.454545454545454,
+      "median": 6.0,
+      "high_6_7": 35,
+      "histogram_1_to_7": [
+        0,
+        2,
+        4,
+        10,
+        15,
+        16,
+        19
+      ],
+      "question_en": "I would accept some added waiting or confirmation."
+    },
+    "ask_when_uncertain": {
+      "n": 66,
+      "mean": 6.287878787878788,
+      "median": 7.0,
+      "high_6_7": 54,
+      "histogram_1_to_7": [
+        0,
+        0,
+        4,
+        3,
+        5,
+        12,
+        42
+      ],
+      "question_en": "When uncertain about a high-risk action, the AI should ask me first."
+    }
+  },
+  "latest_rule_item_means": {
+    "daily_value": 5.515151515151516,
+    "willing_to_use": 5.712121212121212,
+    "misjudgment_consequences": 5.893939393939394,
+    "environmental_text_risk": 5.924242424242424,
+    "extra_check": 6.136363636363637,
+    "accept_delay": 5.424242424242424,
+    "ask_when_uncertain": 6.2727272727272725
+  },
+  "dedup_sensitivity_max_abs_mean_difference": 0.04545454545454586,
+  "education_counts": {
+    "Undergraduate/college students": 44,
+    "High-school/vocational students": 9,
+    "Other": 6,
+    "Non-students": 5,
+    "Graduate students": 2
+  },
+  "priority_risk_counts": {
+    "Navigation / obstacle errors": 23,
+    "Unauthorized personal-data access": 7,
+    "Privacy / continuous camera capture": 18,
+    "Unauthorized website / app / tool opening": 4,
+    "No major safety concern": 8,
+    "Environmental text misleading AI": 3,
+    "Other": 1,
+    "General object-recognition errors": 2
+  },
+  "paired_extra_check_cost": {
+    "both_high": 33,
+    "check_high_cost_not_high": 16,
+    "check_not_high_cost_high": 2,
+    "neither_high": 15,
+    "row_axis": "extra_check scores 1..7",
+    "column_axis": "accept_delay scores 1..7",
+    "joint_histogram_7x7": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        3,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        4,
+        2,
+        2,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        1,
+        6,
+        1
+      ],
+      [
+        0,
+        1,
+        2,
+        1,
+        10,
+        8,
+        18
+      ]
+    ]
+  },
+  "paired_expectation": {
+    "row_axis": "ask_when_uncertain scores 1..7",
+    "column_axis": "accept_delay scores 1..7",
+    "joint_histogram_7x7": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        0,
+        2,
+        2,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        2,
+        4,
+        5,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        4,
+        9,
+        8,
+        19
+      ]
+    ],
+    "both_high": 32,
+    "ask_high_cost_not_high": 22,
+    "ask_not_high_cost_high": 3,
+    "neither_high": 9,
+    "high_agreement_difference_pp": 28.78787878787879,
+    "interpretation": "Scores 1..5 are not classified as high agreement; they do not all mean opposition. No causal or population inference."
+  }
+}

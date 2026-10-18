@@ -40,13 +40,20 @@ export function DetailsDrawer({ open, onClose, run, baseline, health, query, fra
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (open && !dialog.open) dialog.showModal();
-    else if (!open && dialog.open) dialog.close();
+    else if (!open && dialog.open) {
+      dialog.close();
+      // Native close/focus restoration is queued. Keep rapid keyboard reopen
+      // on a visible control instead of a summary inside the closed dialog.
+      const trigger = document.querySelector<HTMLButtonElement>('.evidence-button')
+        ?? document.querySelector<HTMLButtonElement>('.experience-wordmark');
+      trigger?.focus();
+    }
   }, [open]);
 
   return (
     <dialog ref={dialogRef} className="details-drawer" aria-labelledby={titleId} aria-describedby={descriptionId}
       onCancel={(event) => { event.preventDefault(); onClose(); }}
-      onClose={() => { if (open) onClose(); }}
+      onClose={(event) => { if (open && !event.currentTarget.open) onClose(); }}
       onClick={(event) => {
         if (event.target !== event.currentTarget) return;
         const bounds = event.currentTarget.getBoundingClientRect();

@@ -1,0 +1,9 @@
+{
+  "completed_at_utc": "2026-10-18T08:30:52.179969+00:00",
+  "run_id": "run_c93e89475501429c",
+  "post_acceptance_ms": 144.87074996577576,
+  "client_total_observed_ms": 6468.7980829621665,
+  "poll_count": 3,
+  "post_count": 1,
+  "post_retries": 0
+}

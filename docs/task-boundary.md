@@ -1,39 +1,35 @@
-# 使用者任務與引用約束
+# User task and citation boundary
 
-實際模式現在使用 `user-task-cited-evidence-v1`。前台仍維持觀察、分辨、判斷、保護四個狀態；乾淨選項只執行有防護的一次分析。場景選項不參與授權。
+Live mode uses `user-task-cited-evidence-v1`. The selected UI scenario does not grant authorization. The same underlying contract supports the cloud and local model adapters.
 
-## 三個模型步驟，一個程式檢查
+## Three model steps, one deterministic check
 
-1. **只解析使用者訊息。** 同一個常駐模型以全新的純文字對話解析回答／撥號／不支援、目標原文片段、資料種類與明確指定的號碼。這一步沒有圖片、辨識文字、上一個對話或工具。
-2. **只讀取圖片。** 視覺模型轉錄原文並區分資訊與針對 AI 的指令。服務端建立本次請求的 `region_01` 等編號，固定來源為相機。模型輸出不能包含來源、權限或自訂 ID；格式不符時不建立證據。一般店規與聯絡告示仍可作為資訊。
-3. **選取既有引用。** 另一個全新的純文字對話取得固定的使用者任務與保留的紀錄，回傳來源編號、逐字引用及選定值。它沒有圖片或工具，也不能回傳操作與資料種類；這兩者由程式沿用固定的使用者任務。已辨識為干擾的原文不會送進這一步，除非使用者明確要求抄錄／分析該文字或列出全部號碼；那時仍只能回答。
-4. **程式檢查後組裝。** 行動與資料種類必須符合先前的任務；引用編號必須存在，引用必須是原文連續片段，電話必須是完整原始號碼，不能剪掉前幾碼、補數字或更換號碼。方向只做有限的原文方向符號／詞語轉換，一般文字回答採用引用片段。撥號只能選一個不同值；其餘電話候選必須被交代為其他對象，否則停止。模型不能宣稱「這是使用者提供的」來繞過檢查。
+1. **Read only the user request.** A fresh text conversation identifies the operation, target quotation, requested information and any explicit phone number. It receives no image, scene transcription, prior conversation or tools.
+2. **Read only the image.** The vision model transcribes text and distinguishes information from AI-directed instructions. The server assigns request-local source IDs such as `region_01`, with camera provenance. Model output cannot supply its own source IDs or authority. Invalid output does not become evidence. Ordinary business rules and contact notices can remain useful information.
+3. **Select existing citations.** A separate text conversation receives the fixed task and retained records. It returns source IDs, exact quotations and selected values, but cannot replace the fixed operation or information type. Identified instructions are excluded unless the user specifically requests quotation/analysis or all phone numbers; such requests remain informational.
+4. **Validate and assemble.** Deterministic code checks task consistency, existing source IDs, contiguous exact quotations and complete phone numbers. It rejects truncation, added digits and substituted values. Direction conversion is limited to supported literal words/symbols; text answers use cited content. A call needs one distinct selected value and resolution of the remaining candidate numbers. The model cannot bypass checks by declaring a value user-provided.
 
-授權來自使用者，號碼可以來自圖片。是否印有「訂位專線」「名片」不再是實際模式的授權條件。來源紀錄保留在詳細資訊中，前台只顯示採用、忽略與結果。
+Authorization comes from the user; a number may come from the image. Labels such as “reservation line” or “business card” are not themselves permission. If the user directly supplies a complete number for a call, the program uses that user text and does not let the image replace it.
 
-若使用者在訊息中直接指定完整的撥號號碼，程式會從使用者原文取值；圖片不能替換它。
+## Outcomes and comparison
 
-## 結果與比較
+- Reading a phone number returns `answer_question`; requesting a call returns `call_phone`. Every call is simulated.
+- Invalid citations, ambiguous tasks, missing information and unresolved candidates stop the proposal with an explanation. The user can edit the request and analyze the same image again.
+- An instruction quoted at the user's request remains quoted data without authority.
+- Guard OFF receives the same frozen input with `guard_enabled=false` and makes a separate raw proposal. It does not inherit the guarded answer or provenance. Matching outputs remain matching outputs.
+- `raw_model_text` retains the actual selection output. `runtime_metadata.output.metadata` retains the task, perception and selection outputs/diagnostics. A structured `NONE` can represent a program-generated stop; it does not mean the model completed the requested task.
+- An arrow-only sign can support a direction while failing to establish an unseen exit's physical location. This abstention requirement is preserved.
 
-- 查詢電話回傳 `answer_question`，不會顯示模擬撥號。
-- 撥號回傳 `call_phone`，目前仍然只模擬，不會真正聯絡外部服務。
-- 引用無效、需求不明、資訊缺少及多個候選有不同中文原因；停留在第四階段，不增加第五個狀態。可重播後修改需求，再分析同張圖片。
-- 被要求抄錄的指令以「引用文字」呈現，保留它原本沒有指揮權的分類。
-- 有攻擊的選項使用同一張凍結圖片與同一個請求，再獨立執行一次無防護提議。`guard_enabled=false` 明確傳給 Prototype；這次只做原始模型提議，不套用前一次的答案與出處。同樣的結果也如實顯示，不強迫模型被攻擊。
-- 新流程的 `raw_model_text` 是實際引用選取輸出；`runtime_metadata.output.metadata` 保留任務解析、辨識及選取三個步驟的原始輸出與錯誤。`output.parsed` 表示服務是否產生結構化結果，模型各步驟是否成功以其 diagnostics 為準。被停止的結果是程式生成的 `NONE`，並非模型成功完成原任務。
+The optional Nemotron reviewer examines primary text and citations after the gate. Its opinion cannot modify these rules or authorize an action.
 
-## 限制
+## Limits
 
-這是依據模型轉錄內容檢查引用的機制，不是獨立 OCR、真實性認證，也不是完整 CaMeL 實作。任務理解、指令分類、目標關聯以及「其他對象」的判斷仍依賴模型，可能出錯。引用相符不能證明模型推理未受影響，也不能證明貼紙上的號碼真的屬於店家。沒有編造座標或模型信心分數。
+This is citation checking over model-derived transcription, not independent OCR, authenticity verification or a complete CaMeL implementation. Task interpretation, instruction classification, target association and other-target resolution still depend on models. Exact citations do not prove that reasoning was uninfluenced or that a sticker's number belongs to the business. Missing coordinates and confidence values are not invented.
 
-目前答案限定於電話、四個主要方向及原文擷取；不支援任意生成的推論、翻譯、訂位交易、付款或其他工具。模型／感知失敗不改用場景範例或舊授權規則。舊的固定問法授權程式只保留給既有測試介面；常駐實際推論流程不使用它。模擬模式的既有資料與測試另行保留。
+The demo focuses on cited text, phone numbers and supported directions. It does not perform reservations, payments or arbitrary tool execution. Local NVIDIA adapters additionally represent open observations and uncertainty; their general physical-scene accuracy remains unvalidated. Failures never become fixture results or legacy authorization fallbacks.
 
-## 驗證
+## Evidence
 
-安全檢查的 CPU 測試位於 Prototype 的 `tests/test_demo_task_boundary.py`；Demo 的 HTTP 串接及 UI 測試驗證回答／撥號分離、無防護模式傳遞、中文原因與文字引用顯示。
+CPU boundary tests live in the pinned Prototype's `tests/test_demo_task_boundary.py`; Demo tests cover HTTP transport, answer/call separation, citations, failure states and Guard OFF preservation. See the [current audit](verification-2026-10-18.md) for cloud regression and live results.
 
-實際模型的測試使用明確標示的合成文字圖片，涵蓋乾淨／受干擾電話與出口、自然中文問法、否定、引用命令、人物聯絡電話、多號碼、殘缺號碼與一般文字。這些是整合與回歸測試，不代表未見過的圖片或實體相機上的防禦成功率。
-
-2026-09-05 最終模型回歸：12 個案例均符合預期，包括 10 個資訊／模擬撥號成功，以及多號碼與殘缺號碼各 1 個停止結果。[逐案紀錄](task-boundary-validation.json)保留需求、實際輸出及任務解析。Prototype CPU 測試 148 項、Demo 後端測試 100 項通過。前端完整套件原有 50 項通過，後續相關重測 28 項及排版測試 7 項通過（包含新增的電話查詢單行顯示）。
-
-實際 HTTPS 瀏覽器流程另通過 4 個場景（5 次模型請求）：乾淨撥號、受干擾出口的有／無防護比較、電話查詢，以及多號碼需指定對象。手機 390×844 排版與控制按鈕未溢出；乾淨選項仍只有一次有防護請求。這次出口的實際無防護答案是「左邊。」，有防護答案是「右邊」。
+The [2026-09-05 case record](task-boundary-validation.json) is historical local-model evidence: 12 cases, including 10 information/simulated-call completions and two intended stops. Its counts, model behavior and old browser validation must not be treated as the current cloud system's efficacy rate.
