@@ -59,6 +59,8 @@ def create_app(
     async def health() -> Health:
         if isinstance(provider, PrototypeRuntimeProvider):
             remote = await provider.health()
+            remote['second_opinion'] = {'configured': bool(provider.second_opinion_url),
+                                        'role': 'advisory_evaluator'}
             return Health(runtime="prototype", model="live" if remote.get("model_loaded") else str(remote.get("status", "unavailable")), prototype=remote)
         return Health()
 

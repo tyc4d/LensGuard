@@ -146,6 +146,13 @@ class ValidationIssue(Schema):
 class SecondOpinion(Schema):
     status: Literal["agree", "disagree", "uncertain", "unavailable", "error"]
     model: str | None = None
+    provider: str | None = None
+    provider_origin: str | None = None
+    provider_model: str | None = None
+    response_id: str | None = None
+    provider_request_id: str | None = None
+    elapsed_ms: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    usage: dict[str, int] = Field(default_factory=dict)
     summary: str
     checked_claims: list[str] = Field(default_factory=list)
     conflicts: list[str] = Field(default_factory=list)

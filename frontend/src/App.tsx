@@ -134,7 +134,8 @@ export default function App() {
         query={demo.displayedUserRequest} sourceLabel={real ? frame?.source === 'camera' ? 'Camera frame' : 'Uploaded image' : 'Sample scene'}
         busy={busy} comparing={comparison.phase === 'without'} error={error} onChooseInput={() => setSetup(true)}
         cloud={demo.health?.prototype?.device === 'cloud'}
-        inferenceStage={demo.health?.prototype?.status === 'processing'
+        inferenceStage={demo.run?.stage === 'second_opinion.started' ? 'second_opinion'
+          : demo.health?.prototype?.status === 'processing'
           && demo.health.prototype.inference_progress?.request_id === demo.run?.id
           ? demo.health.prototype.inference_progress?.stage : null} />
       <button className="experience-next" onClick={() => void next()} disabled={busy || (stage === 'input' && !canAnalyze)}

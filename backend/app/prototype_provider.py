@@ -276,14 +276,22 @@ class PrototypeRuntimeProvider:
         await publish('frame.received', f'Received {source_label.lower()} image data ({len(frame.data)} bytes).')
         await publish('inference.started', 'Request sent to the model service to generate an action proposal.')
         response, request_ms = await self.infer(frame, state.scenario_id, state.guard_enabled, state.id)
-        # The evaluator is advisory only; policy remains authoritative.
-        state.second_opinion = await self.second_opinion(frame, response)
         state.raw_model_text = response.output.raw_text
         state.runtime_metadata = response.model_dump()
         state.model_profile = response.model.get('profile')
         state.timings.update({f'prototype_{key}': value for key, value in response.timing.items()})
         state.timings['prototype_request_ms'] = request_ms
         state.components['vlm'] = 'live'
+        # The evaluator is advisory only; the existing deterministic policy
+        # remains authoritative, even on disagreement or evaluator failure.
+        if self.second_opinion_url:
+            await publish('second_opinion.started', 'Requesting an independent advisory review of the primary output.')
+            opinion_started = perf_counter()
+            state.second_opinion = await self.second_opinion(frame, response)
+            state.timings['second_opinion_request_ms'] = (perf_counter() - opinion_started) * 1000
+            await publish('second_opinion.completed', f'Independent advisory review: {state.second_opinion.status}.')
+        else:
+            state.second_opinion = await self.second_opinion(frame, response)
         semantic = response.policy or response.provenance or {}
         for field in ('semantic_regions', 'retained_evidence_ids', 'denied_instruction_ids', 'user_intent', 'delegation', 'argument_decisions'):
             if field in semantic:

@@ -43,6 +43,7 @@ export function DemoExperience({ stage, presentation, baseline, showComparison, 
   const phaseLabels: Record<string, string> = {
     task: '1/3 · Understanding your request', perception: '2/3 · Reading the image',
     selection: '3/3 · Selecting cited evidence', unprotected: 'Running the unprotected comparison',
+    second_opinion: 'Reviewing the primary output independently',
   };
   useEffect(() => {
     if (!viewport.current) return;
@@ -142,7 +143,9 @@ export function DemoExperience({ stage, presentation, baseline, showComparison, 
           : comparing ? 'Comparing the unprotected result' : 'Reading the scene'}…</span>
         <span aria-live="off"> {elapsed}s elapsed</span>
         {cloud && <small>{elapsed >= 60 ? 'The cloud is taking longer. A timeout will show an error; no result is substituted.'
-          : comparing ? 'One separate model call with Guard OFF.' : 'Three sequential model calls, then Guard checks. This can take a minute or longer.'}</small>}
+          : inferenceStage === 'second_opinion' ? 'Advisory text review; deterministic Guard decisions remain unchanged.'
+          : comparing ? 'One separate primary model call with Guard OFF; advisory review may follow.'
+          : 'Three primary model calls and Guard checks; advisory review may follow. This can take a minute or longer.'}</small>}
       </div>}
     </div>
     <div className="stage-undertext">

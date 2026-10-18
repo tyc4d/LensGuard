@@ -184,3 +184,23 @@ def test_exhausted_analysis_budget_does_not_start_another_request():
             adapter.generate_remote('test')
     finally:
         adapter.close()
+
+
+def test_arrow_only_location_question_abstains_without_weakening_gate():
+    """A direction sign does not establish an unseen physical exit's location."""
+    responses = iter([
+        {'operation': 'answer', 'target': 'exit', 'authorization_quote': None,
+         'kind': 'text', 'requested_attribute': 'location', 'explicit_number': None,
+         'allow_instruction_quotes': False},
+        {'regions': [{'content': 'EMERGENCY EXIT ← LEFT', 'semantic_role': 'observation',
+                      'spatial_relations': []}]},
+        {'status': 'missing', 'target_matches': False, 'citations': [], 'other_target_ids': []},
+    ])
+    with TestClient(create_app(NebiusRuntime(provider=provider(lambda request: completion(next(responses)))))) as client:
+        response = client.post('/v1/analyze', files={'image': ('frame.png', image_bytes(), 'image/png')},
+            data={'user_request': 'Where is the emergency exit?', 'guard_enabled': 'true'})
+    assert response.status_code == 200
+    result = response.json()
+    assert result['output']['proposed_output']['status'] == 'insufficient_evidence'
+    assert result['output']['proposed_action'] is None
+    assert result['policy'] is None
