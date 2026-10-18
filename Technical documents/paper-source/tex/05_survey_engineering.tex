@@ -18,7 +18,7 @@ The cloud frontend retains camera/upload input, the four-stage Observe--Distingu
 Model roles are explicit: GLM supplies primary task, perception and citation outputs; Nemotron supplies a text-only second opinion; deterministic checks control whether a proposed value can be used. Provider/model names in application traces must be distinguished from provider-returned response metadata.
 
 \subsection{AI/ML is central, not decorative}
-The primary model understands the request, observes the scene, and chooses evidence for the fixed task. The deterministic layer verifies scope, literal evidence, complete values and delegation. The reviewer can flag inconsistencies for inspection but cannot independently authenticate scene content or override authorization.
+The primary model understands the request, observes the scene, and chooses evidence for the fixed task. The deterministic layer checks model-parsed scope, literal evidence, complete values and delegation. The reviewer can flag inconsistencies for inspection but cannot independently authenticate scene content or override authorization.
 
 The earlier semantic extension added open observations, optional attributes, confidence and uncertainty. Confidence below 0.8 can trigger informational abstention; this remains a policy choice, not calibrated model accuracy~\cite{nvidia}.
 
