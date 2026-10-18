@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { backendRun, routePair, separate } from './experience-helpers';
+import { backendRun, liveHealth, prepareLive, routePair, separate } from './experience-helpers';
 
 for (const width of [390, 1280]) {
   test(`independent opinion displays actual evidence and survives repeated drawer open at ${width}px`, async ({ page, request }) => {
@@ -38,5 +38,38 @@ for (const width of [390, 1280]) {
       await expect(drawer).not.toBeVisible();
       await expect(page.getByRole('button', { name: 'View evidence', exact: true })).toBeFocused();
     }
+  });
+}
+
+for (const entry of [
+  { reason: 'not_configured', summary: 'No independent evaluator is configured.', label: 'Not configured' },
+  { reason: 'primary_output_invalid', summary: 'Primary model output failed validation; no review was requested.', label: 'Not run' },
+  { reason: undefined, summary: 'Legacy service did not provide a reason.', label: 'Not available' },
+] as const) {
+  test(`unavailable review explains ${entry.reason ?? 'legacy unknown reason'}`, async ({ page, request }) => {
+    const run = await backendRun(request);
+    run.runtime = 'prototype';
+    run.second_opinion = { status: 'unavailable', summary: entry.summary,
+      ...(entry.reason ? { unavailable_reason: entry.reason } : {}) };
+    if (entry.reason === 'primary_output_invalid') {
+      run.status = 'failed';
+      run.action = null;
+      run.outcome = null;
+      run.decision = null;
+      run.error = 'The model returned incomplete or invalid JSON while reading the image.';
+      run.error_code = 'model_output_parse_failed';
+    }
+    await liveHealth(page);
+    await routePair(page, run);
+    await prepareLive(page);
+    await page.getByRole('button', { name: 'Start analysis', exact: true }).click();
+    const flowOpinion = page.getByLabel('Model workflow').getByLabel('Independent second opinion');
+    await expect(flowOpinion.locator('strong')).toHaveText(entry.label);
+    await expect(flowOpinion).toContainText(entry.summary);
+    if (entry.reason !== 'not_configured') await expect(flowOpinion).not.toContainText('Not configured');
+    await page.keyboard.press('d');
+    const drawer = page.getByRole('dialog', { name: 'Technical trace' });
+    await drawer.getByText('View technical details', { exact: true }).click();
+    await expect(drawer.getByLabel('Independent second opinion').locator('strong')).toHaveText(entry.label);
   });
 }

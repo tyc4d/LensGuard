@@ -51,7 +51,7 @@ flowchart TD
 
 選用複核服務會在顯示結果前，以文字檢查主要輸出、來源與政策。介面呈現主要 VLM、Guard 與 Nemotron 複核的分工、進度與回傳意見；複核不會改變 Guard 決定。**目前所有撥號都只模擬，沒有串接電信或其他外部行動服務。**
 
-系統沒有資料庫，重啟後記憶體結果會清除。雲端模式會將圖片與需求送至 Nebius，需要 API 金鑰；本機主要推論使用預先下載的 Hugging Face 權重與 GPU，若啟用雲端複核仍需 Nebius 存取權。Demo 的 [`prototype`](https://github.com/tyc4d/FM26-LensGuard-Prototype/tree/fc5003faebc0f51bd6b8959ab03ee5af0dac7400) 是 Git submodule，連到獨立 Prototype repo 的固定 commit。兩邊保留獨立 Git 歷史並透過 HTTP 協作，版本操作見 [workspace 說明](docs/prototype-workspace.md)，流程見 [系統架構](docs/architecture.md)及[任務與引用約束](docs/task-boundary.md)。
+系統沒有資料庫，重啟後記憶體結果會清除。雲端模式會將圖片與需求送至 Nebius，需要 API 金鑰；本機主要推論使用預先下載的 Hugging Face 權重與 GPU，若啟用雲端複核仍需 Nebius 存取權。Demo 的 [`prototype`](https://github.com/tyc4d/FM26-LensGuard-Prototype/tree/87222bcecdb3fec68e36b3aee76df1face75c4fa) 是 Git submodule，連到獨立 Prototype repo 的固定 commit。兩邊保留獨立 Git 歷史並透過 HTTP 協作；歷史 GPU 與研究結果仍屬原紀錄版本，不能當作目前 pin 的實測驗證。版本操作見 [workspace 說明](docs/prototype-workspace.md)，流程見 [系統架構](docs/architecture.md)及[任務與引用約束](docs/task-boundary.md)。
 
 ## 安裝與驗證
 
@@ -95,16 +95,16 @@ backend/.venv/bin/python backend/second_opinion_gateway.py --port 8020
 
 兩個 provider 均已在 Linux／RTX 4090 24 GB 環境以 BF16 執行。連接本機 NVIDIA gateway 時，英文前端的模型選單提供 Nemotron 與 Cosmos，預設為 Nemotron。Guard ON／OFF 比較固定使用相同模型、圖片與需求；分析期間會鎖住選單。
 
-## 限制
+先完成 [基礎 GPU 環境安裝](docs/local-model-setup.md#環境)，再依 [NVIDIA 安裝指南](https://github.com/tyc4d/FM26-LensGuard-Prototype/blob/87222bcecdb3fec68e36b3aee76df1face75c4fa/docs/nvidia_local_models.md#setup-cache-and-startup)建立 Nemotron 的獨立依賴環境並下載固定版本模型。兩個設定都要求載入前至少有 21,000 MiB 可用 VRAM；gateway 會先結束自己啟動的舊 worker，再載入另一個模型，不會終止其他 GPU 工作。安裝好後端依賴後，從 Demo 根目錄啟動 gateway：
 
-先完成 [基礎 GPU 環境安裝](docs/local-model-setup.md#環境)，再依 [NVIDIA 安裝指南](https://github.com/tyc4d/FM26-LensGuard-Prototype/blob/fc5003faebc0f51bd6b8959ab03ee5af0dac7400/docs/nvidia_local_models.md#setup-cache-and-startup)建立 Nemotron 的獨立依賴環境並下載固定版本模型。兩個設定都要求載入前至少有 21,000 MiB 可用 VRAM；gateway 會先結束自己啟動的舊 worker，再載入另一個模型，不會終止其他 GPU 工作。安裝好後端依賴後，從 Demo 根目錄啟動 gateway：
+```bash
+cd backend
+.venv/bin/python -m model_gateway --port 8010
+```
 
-## 研究、團隊與授權
+再依下方指令，將 Demo 後端設為 `LENSGUARD_RUNTIME=prototype` 與 `PROTOTYPE_RUNTIME_URL=http://127.0.0.1:8010`。gateway 沿用已準備的環境與權重快取；環境路徑、模型切換及健康檢查見 [NVIDIA 展示操作](docs/nvidia-demo.md)。
 
-[研究論文](Technical%20documents/LensGuard_Paper.pdf) 保留原始本機模型實驗，並加入有日期的雲端驗收結果；歷史數據與目前 Nebius 證據分開呈現。[可編輯原稿與編譯方式](Technical%20documents/paper-source/README.md)。[舊版截圖](screenshot) 另行保存。
-
-- 蔡語宸：開發、模型整合、安全機制與展示工程。
-- 侯柏安：研究、技術文件、實驗、使用者研究與提案影片。
+資訊問題以開放式觀察、選用屬性、不確定性及引用表示；方向問題選取方向本身，不以標誌名稱代替。讀取電話產生資訊回答，明確要求撥號才將號碼交給既有委派與授權檢查。感知及語意能力的修訂不代表已驗證所有真實場景。
 
 2026-09-07 的 GPU smoke 測試中，兩個模型皆通過乾淨／注入導航、電話資訊查詢、委派撥號與混合電話情境；注入電話的綁定仍被阻擋。這些測試使用英文需求，尚未評估中文準確度。額外的非文字顏色情境在兩個模型上都失敗。樓梯、模糊朝向與門的開關狀態使用的是預先提供觀察的契約測試，不代表已驗證真實模型感知。各層感知、解析、語意綁定、不確定性、grounding、授權與端到端結果，見 [分層結果與剩餘限制](https://github.com/tyc4d/FM26-LensGuard-Prototype/blob/fc5003faebc0f51bd6b8959ab03ee5af0dac7400/docs/nvidia_semantic_contract.md)。
 
@@ -204,6 +204,13 @@ npm --prefix frontend run build
 - **部署功能待擴充。** 目前沒有帳號驗證、持久資料庫或多租戶隔離，公開服務部署與資料保留機制尚未完成。
 - **後續方向：** 加入獨立感知／可驗證來源、擴充經使用者確認的工具授權、降低推論延遲，並以完成授權與標記的資料進行更完整的實體測試。
 
+## 研究、團隊與授權
+
+[研究論文](Technical%20documents/LensGuard_Paper.pdf) 保留原始本機模型實驗，並加入有日期的雲端驗收結果；歷史數據與目前 Nebius 證據分開呈現。[可編輯原稿與編譯方式](Technical%20documents/paper-source/README.md)。[舊版截圖](screenshot) 另行保存。
+
+- 蔡語宸：開發、模型整合、安全機制與展示工程。
+- 侯柏安：研究、技術文件、實驗、使用者研究與提案影片。
+
 ## 第三方服務、資料與素材
 
 以下涵蓋目前 Demo 與 Prototype 研究實際使用過的 local／cloud 模型。網頁 Demo 可透過雲端 gateway 使用 GLM-5.3-Flash，或透過本機 gateway 使用 Nemotron Nano VL（預設）與 Cosmos，並可選用 Nemotron-3.5-Super-VL 雲端複核；Qwen 等模型保留於研究紀錄；其餘模型的用途、實驗紀錄與 SDK 來源見 [完整第三方清單](docs/third-party.md#使用過的模型與雲端-api)。
@@ -220,7 +227,7 @@ npm --prefix frontend run build
 | Cloud：Google `gemini-3.1-flash-lite` | [官方模型頁](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite) | [Gemini API 條款](https://ai.google.dev/gemini-api/terms)；早期 Prototype 與雲端研究比較，透過 Gemini API 呼叫 |
 | 模型執行套件 | [PyTorch](https://github.com/pytorch/pytorch/blob/main/LICENSE)、[Transformers](https://github.com/huggingface/transformers/blob/main/LICENSE)、[Accelerate](https://github.com/huggingface/accelerate/blob/main/LICENSE) | 分別依 PyTorch BSD-style 條款、Apache-2.0、Apache-2.0；完整來源見下方清單 |
 | 前後端與開發工具 | [第三方套件清單](docs/third-party.md) | 逐項列出 MIT、BSD、Apache 等上游授權；依賴仍適用各自條款 |
-| Prototype 原始碼 | [LensGuard Prototype](https://github.com/tyc4d/FM26-LensGuard-Prototype/tree/fc5003faebc0f51bd6b8959ab03ee5af0dac7400) | MIT；保留獨立 repo，由 Git submodule 連結並固定 commit |
+| Prototype 原始碼 | [LensGuard Prototype](https://github.com/tyc4d/FM26-LensGuard-Prototype/tree/87222bcecdb3fec68e36b3aee76df1face75c4fa) | MIT；保留獨立 repo，由 Git submodule 連結並固定 commit |
 | 示範情境、圖形與圖示 | [情境 JSON](mock-data/scenarios.json)、[前端原始碼](frontend/src)、[favicon](frontend/public/favicon.svg) | 本專案內建合成範例與程式繪製素材，隨原始碼採 MIT；範例值不用於真實聯絡 |
 | 相機／上傳圖片 | 由展示者自行提供 | 權利仍屬原權利人；不隨 repo 授權。請使用可公開或自行製作的示範素材 |
 | 實體研究照片與衍生紀錄 | [資料處理說明](https://github.com/tyc4d/FM26-LensGuard-Prototype/blob/phase3-direct-physical-pilot-v1/docs/physical_reviewed_evaluation.md) | 未取得公開散布授權的資料與含聯絡資訊的本次衍生紀錄保留本機，不納入繳交 |

@@ -167,6 +167,15 @@ def test_parse_failure_preserves_raw():
     assert 'Unable to parse model output' in snapshots[-1]['error']
 
 
+def test_unconfigured_review_reports_its_reason_without_requesting_evaluation():
+    snapshots, requests = run(remote())
+    final = snapshots[-1]
+    assert final['status'] == 'completed'
+    assert final['second_opinion']['status'] == 'unavailable'
+    assert final['second_opinion']['unavailable_reason'] == 'not_configured'
+    assert [request.url.path for request in requests] == ['/v1/analyze']
+
+
 @pytest.mark.parametrize('stage,label', [('task', 'interpreting your request'),
     ('perception', 'reading the image'), ('selection', 'selecting evidence')])
 @pytest.mark.parametrize('valid_json', [True, False])
@@ -188,6 +197,7 @@ def test_model_stage_failure_explains_schema_or_syntax_without_changing_output(s
     assert final['runtime_metadata']['output']['diagnostics'] == payload['output']['diagnostics']
     assert [r.url.path for r in requests] == ['/v1/analyze']
     assert final['second_opinion']['status'] == 'unavailable'
+    assert final['second_opinion']['unavailable_reason'] == 'primary_output_invalid'
     assert not any(s['stage'] == 'second_opinion.started' for s in snapshots)
 
 

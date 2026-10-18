@@ -165,7 +165,8 @@ class PrototypeRuntimeProvider:
 
     async def second_opinion(self, frame: FrameInput, response: RemoteResponse) -> SecondOpinion:
         if not self.second_opinion_url:
-            return SecondOpinion(status='unavailable', summary='No independent evaluator is configured.')
+            return SecondOpinion(status='unavailable', unavailable_reason='not_configured',
+                summary='No independent evaluator is configured.')
         payload = {'user_request': frame.user_request, 'primary_model': response.model,
                    'primary_output': response.output.model_dump(), 'provenance': response.provenance,
                    'policy': response.policy}
@@ -304,7 +305,7 @@ class PrototypeRuntimeProvider:
                 or isinstance(stages, dict) and any(
                     isinstance(stage, dict) and stage.get('failure_category') == 'model_output_format_error'
                     for stage in stages.values())):
-            state.second_opinion = SecondOpinion(status='unavailable',
+            state.second_opinion = SecondOpinion(status='unavailable', unavailable_reason='primary_output_invalid',
                 summary='Primary model output failed validation; no review was requested.')
             state.components['second_opinion'] = 'unavailable'
             raise _model_output_failure(response.output)
