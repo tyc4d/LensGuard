@@ -49,7 +49,7 @@ test('cloud runtime exposes GLM selection without local GPU usage', async ({ pag
   await expect(page.getByLabel('Inference model', { exact: true })).toHaveValue('nebius-glm-5-3-flash');
   await expect(page.locator('.runtime-info')).toContainText('Cloud inference');
   await expect(page.locator('.runtime-info')).toContainText('GLM handles text + images');
-  await expect(page.locator('.runtime-info')).toContainText('NVIDIA models are not active');
+  await expect(page.locator('.runtime-info')).toContainText('Nemotron can review the resulting text separately');
   await expect(page.locator('.runtime-info')).not.toContainText('GPU VRAM');
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator('.runtime-info')).toBeInViewport({ ratio: 1 });

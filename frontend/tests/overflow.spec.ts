@@ -17,7 +17,9 @@ async function assertStageFits(page: Page) {
   expect(overflow).toEqual([]);
   await expect(page.locator('.experience-next')).toBeInViewport({ ratio: 1 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
+  // The workflow and review now extend below the fold; the interactive demo
+  // itself must still fit without scrolling to reach its controls.
+  expect(await page.locator('.experience-main').evaluate(el => el.getBoundingClientRect().bottom <= innerHeight)).toBe(true);
 }
 
 for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }, { width: 390, height: 844 }]) {

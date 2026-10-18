@@ -107,7 +107,8 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
       await expect(page.locator('.central-stage')).toHaveAttribute('data-stage', stage);
       await expect(page.locator('.experience-next')).toBeInViewport({ ratio: 1 });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
+      // Workflow details below the demo are scrollable; primary controls stay in view.
+      expect(await page.locator('.experience-main').evaluate(el => el.getBoundingClientRect().bottom <= innerHeight)).toBe(true);
       if (stage === 'result') await page.screenshot({ path: testInfo.outputPath('result.png') });
     }
   });

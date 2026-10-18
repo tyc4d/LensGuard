@@ -41,7 +41,7 @@ export function RuntimeInfo({ health, connected, models = [], selectedModel, onM
     </select> : <span className="runtime-model">{model}</span>}
     <span className="runtime-memory">{cloud ? 'Cloud inference' : `GPU VRAM ${memory}`}</span>
     {cloud && <span className="runtime-explanation">GLM handles text + images. Guard checks evidence and permissions in code.
-      <span>Request → Read image → Select evidence → Guard checks. NVIDIA models are not active in this setup.</span>
+      <span>Primary analysis: request → read image → select evidence. Nemotron can review the resulting text separately.</span>
     </span>}
   </small>;
 }

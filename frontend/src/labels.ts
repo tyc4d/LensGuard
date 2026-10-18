@@ -56,6 +56,7 @@ export function traceLabel(value: string): string {
 }
 
 const events: Record<string, string> = {
+  'second_opinion.started': 'Nemotron review started', 'second_opinion.completed': 'Nemotron review completed',
   queued: 'Awaiting analysis', 'frame.received': 'Image received',
   'inference.started': 'Model inference started', 'inference.completed': 'Model inference completed',
   'action.parsed': 'Action parsed', 'perception.scene_analyzed': 'Scene analyzed',
@@ -71,6 +72,7 @@ export function eventLabel(value: string): string {
 }
 
 const timings: Record<string, string> = {
+  second_opinion_ms: 'Nemotron review',
   frame_capture_ms: 'Image capture', demo_upload_receive_ms: 'Image upload received',
   prototype_inference_ms: 'Model inference', prototype_generation_ms: 'Model generation',
   prototype_parsing_and_metadata_ms: 'Parsing and metadata',

@@ -3,6 +3,7 @@ import { CameraPanel, type CameraCapture } from './components/CameraPanel';
 import { RuntimeInfo } from './components/RuntimeInfo';
 import { DetailsDrawer } from './components/story/DetailsDrawer';
 import { DemoExperience } from './components/experience/DemoExperience';
+import { ModelFlow } from './components/experience/ModelFlow';
 import { sampleScene } from './components/experience/SampleScene';
 import { nextStage, presentRun, previousStage, type Stage } from './experience';
 import { useDemoRuntime } from './useDemoRuntime';
@@ -134,7 +135,7 @@ export default function App() {
         query={demo.displayedUserRequest} sourceLabel={real ? frame?.source === 'camera' ? 'Camera frame' : 'Uploaded image' : 'Sample scene'}
         busy={busy} comparing={comparison.phase === 'without'} error={error} onChooseInput={() => setSetup(true)}
         cloud={demo.health?.prototype?.device === 'cloud'}
-        inferenceStage={demo.health?.prototype?.status === 'processing'
+        inferenceStage={demo.run?.components?.second_opinion === 'running' ? 'second_opinion' : demo.health?.prototype?.status === 'processing'
           && demo.health.prototype.inference_progress?.request_id === demo.run?.id
           ? demo.health.prototype.inference_progress?.stage : null} />
       <button className="experience-next" onClick={() => void next()} disabled={busy || (stage === 'input' && !canAnalyze)}
@@ -143,6 +144,7 @@ export default function App() {
       </button>
       {!demo.connected && <p className="connection-status" role="status">{demo.health ? 'Connection lost. Reconnecting…' : 'Connecting…'}</p>}
     </main>
+    <ModelFlow real={real} run={protectedRun ?? demo.run} />
     <dialog ref={setupDialog} className="scene-dialog" aria-labelledby="scene-dialog-title" onCancel={event => { event.preventDefault(); closeSetup(); }}
       onClose={() => { if (setup) closeSetup(); }}>
       <header><h2 id="scene-dialog-title">Choose scene</h2><button onClick={closeSetup} aria-label="Close scene settings">×</button></header>

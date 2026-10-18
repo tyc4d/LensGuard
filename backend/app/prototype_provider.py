@@ -276,8 +276,6 @@ class PrototypeRuntimeProvider:
         await publish('frame.received', f'Received {source_label.lower()} image data ({len(frame.data)} bytes).')
         await publish('inference.started', 'Request sent to the model service to generate an action proposal.')
         response, request_ms = await self.infer(frame, state.scenario_id, state.guard_enabled, state.id)
-        # The evaluator is advisory only; policy remains authoritative.
-        state.second_opinion = await self.second_opinion(frame, response)
         state.raw_model_text = response.output.raw_text
         state.runtime_metadata = response.model_dump()
         state.model_profile = response.model.get('profile')
@@ -297,6 +295,26 @@ class PrototypeRuntimeProvider:
             state.components['provenance'] = 'semantic_lineage'
             state.components['semantic_grounding'] = (response.provenance or {}).get('semantic_grounding', 'model_perception')
         await publish('inference.completed', 'Received the actual inference result from the model.')
+        diagnostics = response.output.diagnostics
+        stages = diagnostics.get('stages', {})
+        if (diagnostics.get('failure_category') == 'model_output_format_error'
+                or isinstance(stages, dict) and any(
+                    isinstance(stage, dict) and stage.get('failure_category') == 'model_output_format_error'
+                    for stage in stages.values())):
+            state.second_opinion = SecondOpinion(status='unavailable',
+                summary='Primary model output failed validation; no review was requested.')
+            state.components['second_opinion'] = 'unavailable'
+            raise _model_output_failure(response.output)
+        # The evaluator is advisory only; policy remains authoritative.
+        opinion_started = perf_counter()
+        if self.second_opinion_url:
+            state.components['second_opinion'] = 'running'
+            await publish('second_opinion.started', 'Nemotron is reviewing the primary output and cited evidence (text only).')
+        state.second_opinion = await self.second_opinion(frame, response)
+        state.components['second_opinion'] = state.second_opinion.status
+        state.timings['second_opinion_ms'] = (perf_counter() - opinion_started) * 1000
+        if self.second_opinion_url:
+            await publish('second_opinion.completed', f'Advisory review: {state.second_opinion.status}.')
         informational = getattr(response.output, 'proposed_output', None)
         if (isinstance(informational, dict) and informational.get('kind') == 'informational'
                 and informational.get('status') in {'uncertain', 'insufficient_evidence'}

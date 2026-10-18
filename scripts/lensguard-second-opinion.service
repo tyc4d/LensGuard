@@ -1,0 +1,14 @@
+[Unit]
+Description=LensGuard Nemotron review via Nebius Token Factory
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/FM26-LensGuard-Demo
+ExecStart=%h/FM26-LensGuard-Demo/backend/.venv/bin/python %h/FM26-LensGuard-Demo/backend/second_opinion_gateway.py --port 8020
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -32,13 +32,16 @@ def reservation_payload(arguments, source='candidate_action'):
     return payload
 
 
-def run(payload=None, guard=True, failure=None, model=None):
+def run(payload=None, guard=True, failure=None, model=None, opinion=None):
     requests = []
     def handler(request):
         requests.append(request)
+        if request.url.path == '/v1/evaluate':
+            return httpx.Response(200, json=opinion)
         if failure: raise failure
         return httpx.Response(200, json=payload)
-    provider = PrototypeRuntimeProvider('http://prototype.test', transport=httpx.MockTransport(handler))
+    provider = PrototypeRuntimeProvider('http://prototype.test', transport=httpx.MockTransport(handler),
+        second_opinion_url='http://evaluator.test' if opinion is not None else None)
     with TestClient(create_app(Settings(runtime='prototype'), provider)) as client:
         response = client.post('/api/run', files={'image': ('scene.jpg', b'real frame bytes', 'image/jpeg')},
             data={'scenario_id': 'reservation-injection', 'guard_enabled': str(guard).lower(), 'user_request': 'trusted task', 'source': 'camera', 'capture_ms': '3.2',
@@ -47,6 +50,25 @@ def run(payload=None, guard=True, failure=None, model=None):
         stream = client.get(f"/api/run/{response.json()['id']}/events").text
         snapshots = [json.loads(line[6:]) for line in stream.splitlines() if line.startswith('data: ')]
         return snapshots, requests
+
+
+@pytest.mark.parametrize('opinion_status', ['agree', 'disagree', 'uncertain', 'invalid'])
+def test_nemotron_review_never_overrides_blocked_action(opinion_status):
+    snapshots, requests = run(remote(allow=False), opinion={
+        'status': opinion_status, 'model': 'nvidia/Nemotron-3.5-Super-VL',
+        'summary': 'Review only.', 'checked_claims': [], 'conflicts': []})
+    final = snapshots[-1]
+    assert final['status'] == 'completed'
+    assert final['outcome']['status'] == 'blocked'
+    assert final['second_opinion']['status'] == ('error' if opinion_status == 'invalid' else opinion_status)
+    assert any(s['components'].get('second_opinion') == 'running' for s in snapshots)
+    reviewing = next(s for s in snapshots if s['stage'] == 'second_opinion.started')
+    assert reviewing['components']['vlm'] == 'live'
+    assert reviewing['raw_model_text'] == 'real raw output'
+    assert reviewing['runtime_metadata']['output']['parsed'] is True
+    assert reviewing['timings']['prototype_inference_ms'] == 12.3
+    assert final['timings']['second_opinion_ms'] >= 0
+    assert [r.url.path for r in requests] == ['/v1/analyze', '/v1/evaluate']
 
 
 @pytest.mark.parametrize('model', ['nemotron-nano-vl-8b', 'cosmos-reason1-7b'])
@@ -155,7 +177,7 @@ def test_model_stage_failure_explains_schema_or_syntax_without_changing_output(s
         'error_message': 'Raw parser details stay in diagnostics.',
         'schema_errors': [{'path': 'other_target_ids.0', 'type': 'string_type'}] if valid_json else [],
     }}}
-    snapshots, _ = run(payload)
+    snapshots, requests = run(payload, opinion={'status': 'uncertain', 'summary': 'No result.'})
     final = snapshots[-1]
     problem = 'an invalid response structure' if valid_json else 'incomplete or invalid JSON'
     assert final['status'] == 'failed'
@@ -164,6 +186,9 @@ def test_model_stage_failure_explains_schema_or_syntax_without_changing_output(s
     assert final['action'] is None and final['outcome'] is None
     assert final['raw_model_text'] == payload['output']['raw_text']
     assert final['runtime_metadata']['output']['diagnostics'] == payload['output']['diagnostics']
+    assert [r.url.path for r in requests] == ['/v1/analyze']
+    assert final['second_opinion']['status'] == 'unavailable'
+    assert not any(s['stage'] == 'second_opinion.started' for s in snapshots)
 
 
 @pytest.mark.parametrize('error', [httpx.ConnectError('offline'), httpx.ReadTimeout('slow')])

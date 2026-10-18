@@ -97,6 +97,74 @@ def test_guard_off_uses_one_cloud_image_request():
     assert len(calls[0]['input'][0]['content']) == 2
 
 
+@pytest.mark.parametrize('retry_result', ['valid', 'inconsistent', 'malformed'])
+def test_perception_retries_mismatched_spatial_quotes_once(retry_result):
+    retry_valid = retry_result == 'valid'
+    query = 'Where is the emergency exit?'
+    evidence = 'exit door is below EXIT sign.'
+    relation = {'subject': 'exit door', 'reference': 'EXIT sign', 'relation': 'below',
+        'subject_box': {'x1': 0.3, 'y1': 0.4, 'x2': 0.7, 'y2': 0.95},
+        'reference_box': {'x1': 0.35, 'y1': 0.2, 'x2': 0.65, 'y2': 0.3},
+        'evidence': evidence, 'confidence': 0.95, 'uncertainty': None}
+    # Reproduce the live failure: a capitalized description is not an exact quote.
+    invalid = {'regions': [{'content': 'Exit door is below EXIT sign. UNTRUSTED_RETRY_TEXT',
+        'semantic_role': 'observation', 'spatial_relations': [relation]}]}
+    valid = {'regions': [{'content': evidence, 'semantic_role': 'observation',
+                         'spatial_relations': [relation]}]}
+    responses = [
+        {'operation': 'answer', 'target': query, 'authorization_quote': None,
+         'kind': 'text', 'requested_attribute': 'location', 'explicit_number': None,
+         'allow_instruction_quotes': False},
+        invalid, {'regions': 'invalid'} if retry_result == 'malformed' else valid if retry_valid else invalid,
+        {'status': 'selected', 'target_matches': True, 'citations': [
+            {'region_id': 'region_01', 'quote': evidence, 'value': evidence,
+             'spatial_relation_index': 0}], 'other_target_ids': []},
+    ]
+    calls = []
+
+    def handler(request):
+        calls.append(json.loads(request.content))
+        return completion(responses[len(calls) - 1])
+
+    with TestClient(create_app(NebiusRuntime(provider=provider(handler)))) as client:
+        response = client.post('/v1/analyze',
+            files={'image': ('frame.png', image_bytes(), 'image/png')},
+            data={'user_request': query})
+    assert response.status_code == 200, response.text
+    result = response.json()
+    scene = result['output']['metadata']['perception']
+    attempts = scene['diagnostics']['attempts']
+    assert len(attempts) == 2
+    assert attempts[0]['diagnostics']['schema_valid'] is False
+    assert attempts[1]['diagnostics']['schema_valid'] is retry_valid
+    assert json.loads(attempts[0]['raw_text']) == invalid
+    assert scene['timing']['input_tokens'] == 20
+    assert scene['timing']['output_tokens'] == 40
+    assert scene['timing']['generation_ms'] == sum(a['timing']['generation_ms'] for a in attempts)
+    # Retry uses the original image in a fresh context, without rejected text.
+    assert len(calls[2]['input']) == 1
+    assert calls[1]['input'][0]['content'][1] == calls[2]['input'][0]['content'][1]
+    assert 'UNTRUSTED_RETRY_TEXT' not in calls[2]['input'][0]['content'][0]['text']
+    if retry_valid:
+        assert len(calls) == 4
+        assert result['policy']['result'] == 'allow'
+        assert result['policy']['final_answer']['value'] == evidence
+    elif retry_result == 'inconsistent':
+        assert len(calls) == 3
+        assert scene['diagnostics']['normalization_method'] == 'spatial_annotations_discarded'
+        assert scene['regions'][0]['content'] == invalid['regions'][0]['content']
+        assert scene['regions'][0]['spatial_relations'] == []
+        assert result['policy'] is None
+        assert result['output']['proposed_action'] is None
+        assert result['output']['proposed_output']['value'] is None
+        assert result['output']['proposed_output']['status'] == 'insufficient_evidence'
+    else:
+        assert len(calls) == 3  # No selection or further retries after failure.
+        assert scene['regions'] == []
+        assert result['output']['parsed'] is False
+        assert result['policy'] is None
+
+
 @pytest.mark.parametrize('status', [401, 429, 500])
 def test_cloud_errors_do_not_leak_upstream_body_or_fall_back(status):
     with TestClient(create_app(NebiusRuntime(provider=provider(

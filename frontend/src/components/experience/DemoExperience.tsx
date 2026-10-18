@@ -43,6 +43,7 @@ export function DemoExperience({ stage, presentation, baseline, showComparison, 
   const phaseLabels: Record<string, string> = {
     task: '1/3 · Understanding your request', perception: '2/3 · Reading the image',
     selection: '3/3 · Selecting cited evidence', unprotected: 'Running the unprotected comparison',
+    second_opinion: 'Nemotron · Reviewing the answer and citations',
   };
   useEffect(() => {
     if (!viewport.current) return;
@@ -138,11 +139,12 @@ export function DemoExperience({ stage, presentation, baseline, showComparison, 
       </div>}
       {stage === 'input' && imageUrl && <span className="scene-source">{sourceLabel}</span>}
       {busy && <div className="analysis-indicator" role="status">
-        <span>{cloud ? phaseLabels[inferenceStage ?? ''] ?? 'Waiting for the cloud service'
+        <span>{inferenceStage === 'second_opinion' ? phaseLabels.second_opinion : cloud ? phaseLabels[inferenceStage ?? ''] ?? 'Waiting for the cloud service'
           : comparing ? 'Comparing the unprotected result' : 'Reading the scene'}…</span>
         <span aria-live="off"> {elapsed}s elapsed</span>
         {cloud && <small>{elapsed >= 60 ? 'The cloud is taking longer. A timeout will show an error; no result is substituted.'
-          : comparing ? 'One separate model call with Guard OFF.' : 'Three sequential model calls, then Guard checks. This can take a minute or longer.'}</small>}
+          : inferenceStage === 'second_opinion' ? 'Text-only second opinion via Nebius Token Factory. The Guard decision remains unchanged.'
+          : comparing ? 'One separate primary model call with Guard OFF, followed by the configured review.' : 'Three primary model calls, Guard checks, then the configured Nemotron review. This can take a minute or longer.'}</small>}
       </div>}
     </div>
     <div className="stage-undertext">
