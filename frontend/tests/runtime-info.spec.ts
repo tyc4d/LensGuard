@@ -49,7 +49,8 @@ test('cloud runtime exposes GLM selection without local GPU usage', async ({ pag
   await expect(page.getByLabel('Inference model', { exact: true })).toHaveValue('nebius-glm-5-3-flash');
   await expect(page.locator('.runtime-info')).toContainText('Cloud inference');
   await expect(page.locator('.runtime-info')).toContainText('GLM handles text + images');
-  await expect(page.locator('.runtime-info')).toContainText('Nemotron can review the resulting text separately');
+  await expect(page.locator('.runtime-info')).toContainText('See each run for independent evaluator availability');
+  await expect(page.locator('.runtime-info')).not.toContainText('NVIDIA models are not active');
   await expect(page.locator('.runtime-info')).not.toContainText('GPU VRAM');
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator('.runtime-info')).toBeInViewport({ ratio: 1 });
@@ -90,7 +91,7 @@ for (const width of [320, 1280]) {
 }
 
 for (const configured of [true, false]) {
-  test(`cloud runtime does not claim completed review from evaluator configuration ${configured}`, async ({ page }) => {
+  test(`cloud runtime distinguishes evaluator configuration ${configured} from inference evidence`, async ({ page }) => {
     await page.route('**/api/health', route => route.fulfill({ json: {
       status: 'ok', runtime: 'prototype', model: 'live', prototype: {
         status: 'ready', model_loaded: true, device: 'cloud', model_profile: 'nebius-glm-5-3-flash',
@@ -98,7 +99,9 @@ for (const configured of [true, false]) {
       },
     } }));
     await page.goto('/');
-    await expect(page.locator('.runtime-info')).toContainText('Nemotron can review the resulting text separately.');
+    await expect(page.locator('.runtime-info')).toContainText(configured
+      ? 'Independent text review is configured' : 'Independent text review is not configured');
+    await expect(page.locator('.runtime-info')).toContainText('Reviews are advisory and cannot authorize actions');
     await expect(page.locator('.model-flow-note')).toContainText('It cannot verify the original image or authorize actions.');
     await expect(page.locator('.model-flow .second-opinion')).toHaveCount(0);
     await expect(page.locator('.runtime-info')).not.toContainText('Nemotron-3.5-Super-VL');

@@ -41,7 +41,11 @@ export function RuntimeInfo({ health, connected, models = [], selectedModel, onM
     </select> : <span className="runtime-model">{model}</span>}
     <span className="runtime-memory">{cloud ? 'Cloud inference' : `GPU VRAM ${memory}`}</span>
     {cloud && <span className="runtime-explanation">GLM handles text + images. Guard checks evidence and permissions in code.
-      <span>Primary analysis: request → read image → select evidence. Nemotron can review the resulting text separately.</span>
+      <span>{runtime.second_opinion?.configured
+        ? 'Independent text review is configured. See each run for the evaluator model and result.'
+        : runtime.second_opinion?.configured === false
+          ? 'Independent text review is not configured.'
+          : 'See each run for independent evaluator availability.'} Reviews are advisory and cannot authorize actions.</span>
     </span>}
   </small>;
 }
