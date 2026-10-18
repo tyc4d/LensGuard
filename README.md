@@ -4,7 +4,9 @@
 
 **Cited scene evidence. User-authorized actions.**
 
-LensGuard is an auditable action-authorization layer for camera-enabled assistants. It separates what a camera reads from what the user has authorized, so a sign or business card can supply useful information without gaining permission to redirect an action. Developers of camera-enabled agents can inspect why a number was read, a simulated call was allowed, or clarification was needed.
+Camera-enabled AI is moving from describing scenes toward helping people make decisions and act. Scene text can supply evidence; an instruction embedded in it should not become a command from the user. In future smart-glasses navigation, confusing scene content with user instructions could produce misleading guidance that someone follows in the physical world. Related research includes [VPI-Bench](https://arxiv.org/abs/2506.02456) on computer-use agents and [Devil in the Lens](https://arxiv.org/abs/2607.10269) on physical attacks and defenses for wearables.
+
+LensGuard is a research demo for camera assistants that separates seeing, citing and acting. An exit sign can support a cited direction; reading a phone number is separate from proposing a simulated call. Developers can inspect the model's proposal, supporting text, authorization decision and why clarification is needed.
 
 **[Try the live demo](https://elk-on-namely.ngrok-free.app/) · [Watch the video](https://youtu.be/M4BbW9jHx1Q) · [Run on Nebius](docs/nebius-cloud.md)**
 
@@ -29,8 +31,9 @@ flowchart LR
     N --> UI
 ```
 
-- **Nebius Token Factory:** GLM-5.3-Flash performs primary task parsing, image observation and citation selection. A separately configured NVIDIA Nemotron reviews the output against its cited text.
-- **Authority boundary:** The deterministic gate checks task scope, exact citations and complete values. The reviewer cannot authorize actions or independently inspect the image.
+- **Nebius Token Factory:** GLM-5.3-Flash performs primary task parsing, image observation and citation selection.
+- **Independent review:** A separately configured NVIDIA Nemotron compares the primary output with its cited text, giving developers a second model's advisory consistency check. It does not inspect the original image or grant permission; an accuracy improvement has not been established.
+- **Authority boundary:** The deterministic gate checks exact citations, complete values and consistency with the model-parsed task. Authorization still depends on correct task interpretation.
 - **Honest comparison:** Guard OFF makes a separate model request using the same frozen input. It retains the original proposal rather than borrowing the guarded answer.
 - **Two alternatives:** Explicit Mock mode uses fixed fixtures without an API key. Local GPU mode supports Nemotron Nano VL and Cosmos Reason1. Inference failures never silently become Mock results.
 
@@ -86,7 +89,7 @@ npm --prefix frontend run build
 
 Install `backend/requirements-cloud.txt` to include the CPU-only cloud contract tests. Browser tests use isolated Mock/test-response services; they do not measure live model accuracy. [Test history](docs/testing.md)
 
-Perception, task interpretation and target association can still be wrong. A matching citation does not prove that a sign is authentic or a number belongs to a business. There are no real calls, reservations or wearable deployment results. Runs are retained only in bounded process memory; there is no authentication or tenant isolation. Treat this as a research demo, not an unattended public service.
+Perception, task interpretation and target association can still be wrong. A matching citation does not prove that a sign is authentic or a number belongs to a business. All external actions are simulated; there are no wearable deployment results. Runs are retained only in bounded process memory; there is no authentication or tenant isolation. Treat this as a research demo, not an unattended public service.
 
 ## Research, team and credits
 
