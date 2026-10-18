@@ -30,8 +30,29 @@ class EvaluationVerdict(BaseModel):
     conflicts: list[str] = Field(default_factory=list, max_length=30)
 
 
+class EvaluationResponse(EvaluationVerdict):
+    model: str
+    provider: Literal['nebius'] = 'nebius'
+    provider_origin: str | None = None
+    provider_model: str | None = None
+    response_id: str | None = None
+    provider_request_id: str | None = None
+    elapsed_ms: float = Field(ge=0, allow_inf_nan=False)
+    usage: dict[str, int] = Field(default_factory=dict)
+
+
+def _identifier(value: Any) -> str | None:
+    return value if isinstance(value, str) and 0 < len(value) <= 256 else None
+
+
+def _origin(url: httpx.URL) -> str:
+    # Expose only the origin, without credentials, path, query, or fragments.
+    return str(httpx.URL(scheme=url.scheme, host=url.host, port=url.port))
+
+
 def create_app(*, transport: httpx.BaseTransport | None = None) -> FastAPI:
     app = FastAPI(title='LensGuard Nemotron second-opinion evaluator')
+    app.add_middleware(RequestBodyLimitMiddleware, paths=('/v1/evaluate',), json_limit=1024 * 1024)
     base_url = os.environ.get('SECOND_OPINION_BASE_URL', 'https://api.tokenfactory.us-north1.nebius.com/v1/').rstrip('/')
     api_key = os.environ.get('NEBIUS_API_KEY')
     model = os.environ.get('SECOND_OPINION_MODEL', 'nvidia/Nemotron-3.5-Super-VL')
@@ -75,7 +96,7 @@ exit location. This opinion is advisory; do not discuss authorization.'''
             response.raise_for_status()
             payload = response.json()
             choice = payload['choices'][0]
-            if choice.get('finish_reason') != 'stop':
+            if choice.get('finish_reason') != 'stop' or payload.get('error'):
                 raise ValueError('incomplete evaluator output')
             raw = choice['message']['content']
             if not isinstance(raw, str): raise ValueError('empty evaluator output')

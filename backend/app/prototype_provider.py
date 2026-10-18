@@ -285,16 +285,6 @@ class PrototypeRuntimeProvider:
         state.timings.update({f'prototype_{key}': value for key, value in response.timing.items()})
         state.timings['prototype_request_ms'] = request_ms
         state.components['vlm'] = 'live'
-        # The evaluator is advisory only; the existing deterministic policy
-        # remains authoritative, even on disagreement or evaluator failure.
-        if self.second_opinion_url:
-            await publish('second_opinion.started', 'Requesting an independent advisory review of the primary output.')
-            opinion_started = perf_counter()
-            state.second_opinion = await self.second_opinion(frame, response)
-            state.timings['second_opinion_request_ms'] = (perf_counter() - opinion_started) * 1000
-            await publish('second_opinion.completed', f'Independent advisory review: {state.second_opinion.status}.')
-        else:
-            state.second_opinion = await self.second_opinion(frame, response)
         semantic = response.policy or response.provenance or {}
         for field in ('semantic_regions', 'retained_evidence_ids', 'denied_instruction_ids', 'user_intent', 'delegation', 'argument_decisions'):
             if field in semantic:
@@ -326,6 +316,7 @@ class PrototypeRuntimeProvider:
         state.second_opinion = await self.second_opinion(frame, response)
         state.components['second_opinion'] = state.second_opinion.status
         state.timings['second_opinion_ms'] = (perf_counter() - opinion_started) * 1000
+        state.timings['second_opinion_request_ms'] = state.timings['second_opinion_ms']
         if self.second_opinion_url:
             await publish('second_opinion.completed', f'Advisory review: {state.second_opinion.status}.')
         informational = getattr(response.output, 'proposed_output', None)

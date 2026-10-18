@@ -40,7 +40,11 @@ def test_nemotron_uses_north_endpoint_and_text_only_payload():
     with TestClient(create_app(transport=httpx.MockTransport(handler))) as client:
         response = client.post('/v1/evaluate', json=REQUEST)
     assert response.status_code == 200
-    assert response.json() == {**OPINION, 'model': 'nvidia/Nemotron-3.5-Super-VL'}
+    result = response.json()
+    assert {key: result[key] for key in OPINION} == OPINION
+    assert result['model'] == 'nvidia/Nemotron-3.5-Super-VL'
+    assert result['provider_origin'] == 'https://api.tokenfactory.us-north1.nebius.com'
+    assert result['elapsed_ms'] >= 0
 
 
 @pytest.mark.parametrize('content,finish', [('not json', 'stop'), ('{}', 'stop'),

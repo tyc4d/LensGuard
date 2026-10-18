@@ -59,7 +59,6 @@ const events: Record<string, string> = {
   'second_opinion.started': 'Nemotron review started', 'second_opinion.completed': 'Nemotron review completed',
   queued: 'Awaiting analysis', 'frame.received': 'Image received',
   'inference.started': 'Model inference started', 'inference.completed': 'Model inference completed',
-  'second_opinion.started': 'Independent review started', 'second_opinion.completed': 'Independent review completed',
   'action.parsed': 'Action parsed', 'perception.scene_analyzed': 'Scene analyzed',
   'perception.text_extracted': 'Text extracted', 'model.action_proposed': 'Model proposed an action',
   'provenance.attached': 'Provenance attached', 'policy.evaluated': 'Authorization evaluated',

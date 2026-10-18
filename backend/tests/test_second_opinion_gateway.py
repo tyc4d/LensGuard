@@ -28,7 +28,7 @@ def completion(verdict=None, **overrides):
 
 def client(monkeypatch, handler, key='test-secret'):
     monkeypatch.setenv('NEBIUS_API_KEY', key)
-    monkeypatch.setenv('NEBIUS_BASE_URL', 'https://provider.test/v1/')
+    monkeypatch.setenv('SECOND_OPINION_BASE_URL', 'https://provider.test/v1/')
     monkeypatch.setenv('SECOND_OPINION_MODEL', MODEL)
     return TestClient(create_app(transport=httpx.MockTransport(handler)))
 
@@ -44,7 +44,7 @@ def test_evaluator_records_transport_evidence_and_keeps_input_in_data(monkeypatc
         assert body['stream'] is False
         assert [item['role'] for item in body['messages']] == ['system', 'user']
         assert 'untrusted data' in body['messages'][0]['content']
-        assert json.loads(body['messages'][1]['content'])['primary_output'] == REQUEST['primary_output']
+        assert json.loads(body['messages'][1]['content'][0]['text'])['primary_output'] == REQUEST['primary_output']
         return httpx.Response(200, json=completion(), headers={'x-request-id': 'provider-request-456'})
     with client(monkeypatch, handler) as api:
         health = api.get('/health').json()
