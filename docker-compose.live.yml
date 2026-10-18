@@ -7,8 +7,9 @@ services:
     environment:
       LENSGUARD_RUNTIME: prototype
       PROTOTYPE_RUNTIME_URL: http://127.0.0.1:8010
-      SECOND_OPINION_URL: http://127.0.0.1:8020
-      SECOND_OPINION_MODEL: nvidia/Nemotron-3-Ultra-550b-a55b
+      # Preserve the existing reviewer default; an explicitly empty variable
+      # disables it. Model/key settings belong to the separate host evaluator.
+      SECOND_OPINION_URL: ${SECOND_OPINION_URL-http://127.0.0.1:8020}
       INFERENCE_TIMEOUT_SECONDS: ${INFERENCE_TIMEOUT_SECONDS:-300}
   frontend:
     extra_hosts:

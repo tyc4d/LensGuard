@@ -1,0 +1,24 @@
+{
+  "pdf_sha256": "5b4f93717bb10814ef048245dd12155ad05605feec20253d2261caf4762f0f56",
+  "pages": 6,
+  "authors": "Bo-An Hou and Yu-Chen Tsai",
+  "body_font_pt": 9.45,
+  "layout": "Original A4 two-column six-page template; no type-size reduction",
+  "no_overfull_or_underfull_boxes": true,
+  "no_undefined_citations": true,
+  "known_build_warnings": [
+    "epstopdf: shell escape intentionally disabled",
+    "caption: original captionof placement outside box; visually checked"
+  ],
+  "visual_review_pages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "historical_data": "All five original aggregate JSON data files unchanged byte-for-byte; historical runtime file renamed only",
+  "new_evidence": "10 exploratory runs and separate preregistered16-run synthetic cohort; whole-workflow comparison; no general defense-rate claim",
+  "live_provider_identity": "Application-reported IDs only; absent upstream response ID and endpoint evidence disclosed"
+}

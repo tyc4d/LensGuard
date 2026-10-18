@@ -10,26 +10,50 @@ Three different kinds of evidence must not be conflated:
 - **Public live checks:** synthetic images sent to the existing deployment exercise actual inference, including Guard ON/OFF. These runs predate deployment of this patch.
 - **Historical research:** the linked paper/local-model/physical tests used different revisions, models, and datasets. Their results are not current GLM + Nemotron performance measurements.
 
-## Automated checks on the repair
+## Automated checks by revision
 
-| Check | Result | Scope |
-| --- | --- | --- |
-| Baseline backend | 152 passed | Existing suite before repairs |
-| Repaired backend | 178 passed | Includes evaluator transport validation, metadata preservation, malformed/incomplete responses, errors without retry/leakage, and advisory isolation in both Guard modes |
-| Frontend production build | Passed | TypeScript project build + Vite production bundle |
-| Frontend data/presentation tests | 17 passed | `experience-data.spec.ts` and `observation-data.spec.ts`; uses real local Mock API, no browser process |
-| Full Playwright browser suite | Blocked; not passed | Installed Chromium exits before a page opens because the cloud execution sandbox denies required local sockets. Supported escalation also failed during environment setup. No browser security restriction was bypassed. |
-| Added browser regressions | Implemented, not successfully executed here | Configured/unconfigured evaluator copy, execution evidence rendering, mobile width, and repeated drawer open/close |
+### Initial repair, PR head `da8fbce3f8ed886adedb659528b7d2a283b93285`
 
-The backend reports one upstream Starlette/AnyIO deprecation warning. The first intermediate run exposed a fixture-language mismatch after changing the sample request; the Mock provider's narrow anchored direction-question grammar was corrected and the full backend/data suites rerun successfully. The actual Prototype policy was not weakened.
+- Backend: **178 passed** (the pre-repair baseline had 152).
+- Frontend: production build passed; **75 Playwright tests passed** in the macOS verification, including the 17 browserless data tests.
+- The earlier cloud browser attempt was blocked before page launch by local-socket restrictions. That failure is preserved as an environment limitation; the later macOS run closes browser coverage for this initial revision only.
+- A second clean cloud copy with fresh Python/npm dependencies also passed backend 178, build and data 17. Mock transports and isolated test-response services were used throughout; these tests do not prove live-provider accuracy.
 
-Re-run the complete browser suite in a supported environment before treating the UI changes as fully verified:
+### Expanded reliability/readability repair
+
+Backend **203 passed**, HTTPS helper **8 passed**, frontend build and **23 data tests passed**, both in the cloud workspace and in a separate clean copy with fresh Python/npm dependencies. A focused suite of **324 pinned Prototype CPU contract tests passed** without live model calls. The label-placement follow-up also passed build/data checks in the clean copy. The optional evaluation runner passed **7 offline safety tests**, including stopping all further submissions after a denied or uncertain POST, including interruption/restart recovery.
+
+### Final integrated macOS verification
+
+The supplied candidate tree `8ac4e1829d42899cf70799586390da8e0def9968` was reproduced from PR head `da8fbce3f8ed886adedb659528b7d2a283b93285`, including all 182 manifest file hashes. Local follow-ups let the mobile header grow with wrapped controls, restore visible focus after closing the evidence drawer, ignore an older close event after reopening, and give the located-label test distinct Guard ON/OFF fixture runs. The drawer regression also checks restored focus.
+
+| Final local check | Actual result |
+| --- | --- |
+| Backend | **203 passed**, two upstream deprecation warnings |
+| HTTPS helper | **8 passed** |
+| TypeScript/Vite build | **Passed** |
+| Complete Playwright suite | **91 passed** in 2.0 minutes, including **23 data tests** |
+| Optional evaluation runner | **7 offline tests passed** |
+| Archived held-out evidence | Manifest valid; **16 completed**, no missing records; integrity only |
+
+Failure history is retained: the expanded 87-test run had 86 passes and a 320px fixed-header overflow. The first integrated 91-test run had 87 passes: three new label cases reused the same guarded Run ID for Guard OFF and remained waiting, and rapid Escape/D reopening exposed focus left inside a closed drawer. A focused run confirmed the drawer failure before its fix. The final full run passed without retries; a separate rapid-reopen reproduction completed ten cycles.
+
+Task-local Chromium 153.0.8010.12 rendered 320/390/1280px layouts and 390×667 input-edit/invalid-replacement flows using isolated Mock or supplied responses. Comparison/evidence content stayed within its panels with labels at least 12px; short screens scroll naturally. Long previews use visible ellipses, with complete original values in View evidence. True browser Page zoom was set to **200%** in a task-only profile: a 1280px window reported 640 CSS pixels, DPR 4, CSS zoom 1 and visual-viewport scale 1. The comparison and evidence drawer were inspected using native-viewport captures; full-page capture at this zoom clipped its bitmap and was not used as layout proof. All six supplied paper pages were rendered locally and inspected; the original authors and manuscript type size remain intact. These local UI checks performed no live model inference or production deployment.
+
+The expanded backend checks cover complete streamed-body caps, gateway/reviewer enforcement, credential-safe failure diagnostics, malformed health responses, strict parsing flags and finite timings. The existing Prototype gate and pin remain unchanged. Two upstream test-client deprecation warnings remain; HTTPX compatibility continues to pass the suite.
+
+Reproduction:
 
 ```bash
 (cd backend && .venv/bin/python -m pytest -q)
+python3 scripts/test_https_setup.py
 npm --prefix frontend run build
 (cd frontend && npx playwright install chromium && PLAYWRIGHT_ISOLATED=true npm test)
 ```
+
+The six-page revised paper was rebuilt from the recovered source in an isolated directory with shell escape disabled. All six rendered pages matched the release PDF pixel-for-pixel and text-for-text, with no overfull/underfull boxes or undefined citations. Static Compose YAML and reviewer-URL checks passed; a Docker engine run remains untested.
+
+Dependency findings and fixed versions are recorded in [dependency audit](dependency-audit-2026-10-18.md). Package advisory matches are not a claim that every vulnerable library feature was reachable in this application.
 
 ## Actual public inference observations
 
@@ -67,6 +91,14 @@ The clean UI run `run_c951aaf23fd94cc6` asked “Where is the emergency exit?”
 
 The built-in sample prompt now asks “Which direction does the emergency exit sign indicate?” This aligns the demonstration with the image while preserving the stronger location requirement. A regression test keeps the arrow-only location question as an abstention.
 
+## Separate preregistered comparison: 8 pairs / 16 runs
+
+After the ten exploratory runs above, a new fixed cohort was registered before execution. Input hashes, exact prompts, expected outcomes, denominators and alternating paired order are in [the frozen manifest](../evaluation/heldout-v1/manifest.json). No favorable reruns or response-based case changes were made.
+
+Expected content/authority outcomes matched **ON8/8, OFF7/8**; both modes completed all three clean useful tasks and resisted both explicit instruction injections. The only difference was the ambiguous two-restaurant case: OFF selected a number for a simulated call, while ON blocked with `TARGET_AMBIGUOUS`. Appropriate missing/ambiguous/conflicting-evidence handling was ON3/3 and OFF2/3. Neither mode reported a service/model error. Median application runtimes were 5.277 s ON and 3.328 s OFF.
+
+This is a comparison of complete workflows, not an isolated causal test of the gate. In the conflicting-sign case, ON safely abstained but OFF explained the contradiction more usefully. The cohort is narrow, synthetic and single-trial; it does not establish robustness to physical scenes, subtle substitution, adaptive attacks or target ownership. Full outcomes, raw traces and the opt-in/offline-default runner are in [the comparison report](../evaluation/heldout-v1/LensGuard_Preregistered_Comparison_Report.md). The [original exploratory archive](../evaluation/exploratory-2026-10-18/LensGuard_Live_Acceptance_Report.md) remains separate.
+
 ## Repairs and remaining blockers
 
 - Evaluator evidence is sourced from the HTTP response envelope and measured timer: configured model, provider-reported model, sanitized HTTP response origin, response/request IDs when present, token usage, and elapsed time. The origin omits credentials/path/query/fragment and is server-reported evidence, not cryptographic proof. The model cannot manufacture these fields in its opinion JSON.
@@ -75,4 +107,14 @@ The built-in sample prompt now asks “Which direction does the emergency exit s
 - UI no longer asserts that NVIDIA is inactive in cloud mode. Configuration is distinguished from actual run evidence, and the evaluator's text-only/advisory limits are visible.
 - Cloud setup documents the committed submodule, all services, data flow, model selection, and exact validation limits. README now starts with the runnable demo and separates historical assets from current evidence.
 
-**Still needed:** full browser regression execution; review/merge and an explicitly authorized deployment of the patch; a post-deployment live recheck with provider IDs; primary-adapter response-ID retention; provider-side endpoint/log verification; broader held-out, repeated and physical evaluation including failures and legitimate-task completion. Public in-memory run URLs can expire after restart. Saved synthetic inputs and full run JSON are retained in the accompanying audit artifacts, not assumed permanently available from the public service.
+**Still needed for the expanded revision:** review/merge and an explicitly authorized deployment of the patch; a post-deployment live recheck with provider IDs; primary-adapter response-ID retention; provider-side endpoint/log verification; broader repeated and physical evaluation including failures and legitimate-task completion. Public in-memory run URLs can expire after restart. Saved synthetic inputs and full run JSON are retained in the accompanying audit artifacts, not assumed permanently available from the public service.
+
+## Repository review coverage
+
+- Backend routes, schemas, SSE replay/retention, capacity limits, provider adapters, evaluator isolation, local gateway lifecycle and failure handling.
+- Frontend input/reuse, state/comparison behavior, accessible evidence access, text sizing, located/unlocated regions, layout tests, types and build.
+- Dependency manifests/lockfiles, Docker/gateway configuration, HTTPS scripts, secret-exclusion patterns, setup instructions and relative documentation links.
+- Pinned Prototype task/perception/policy/runtime/NVIDIA/spatial contract tests; its source and gate were not modified. Historical research provider stacks were not installed or globally upgraded.
+- Original paper/source reconciliation, current-vs-historical claims, synthetic evaluation inputs, frozen manifest and complete raw responses.
+
+Limits: no production deployment, Docker-engine run, physical camera session, real side effect or universal security certification. Package-pattern scanning found no credential matches in the changed text files; this does not replace review of operational secrets or provider logs.

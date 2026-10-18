@@ -9,7 +9,7 @@ The world does not automatically get authority over the AI.
 
 This repository contains a working research demonstration of the boundary between **what a camera observes**, **what a model proposes**, and **what an authorization layer permits**. It illustrates physical prompt injection through structured action provenance: environmental content can provide useful information without automatically gaining authority over a sensitive action argument.
 
-**Current stage:** selectable local NVIDIA Nemotron (default) / Cosmos integration + explicit mock mode. See [NVIDIA demo operation](nvidia-demo.md).
+**Runtime choices:** Nebius GLM primary inference with an independent Nemotron reviewer, selectable local NVIDIA Nemotron / Cosmos, or explicit Mock mode. Start with the [cloud guide](nebius-cloud.md); the detailed local GPU operations below remain available.
 **Grounding limit:** scene text is extracted by the local VLM and checked by deterministic semantic rules; it is not independently verified. Phase 3.6 evaluation results are not part of this demo.
 
 The presentation is a single page with four states: **Observe, Distinguish, Decide, Protect**. Interface labels, controls, and known direction values use English; the original scene text and user request remain unchanged. The technical drawer retains the original diagnostics and structured output.
@@ -18,7 +18,7 @@ The camera, UI, FastAPI, and SSE pipeline are live. In `LENSGUARD_RUNTIME=protot
 
 ## What the demo includes
 
-- One persistent central image, tiny stage indicator, and one primary action.
+- One central image, readable stage labels, and one primary action.
 - **觀察:** original captured/uploaded image and the exact user request. Mock mode shows a labeled sample image built from backend fixture text.
 - **分辨:** observations/contacts and embedded instructions from the returned semantic regions. Image highlights require actual coordinates; unlocated text is explicitly shown as extracted text.
 - **判斷:** selected evidence is marked 採用 and denied instructions are marked 忽略, with compact confirmation marks. Navigation uses plain text buttons; no presentation arrow paths are drawn.

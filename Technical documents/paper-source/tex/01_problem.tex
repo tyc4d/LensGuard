@@ -1,0 +1,37 @@
+\begin{center}
+{\fontsize{21}{24}\selectfont\bfseries LensGuard\par}
+\vspace{2pt}
+{\fontsize{12.2}{15}\selectfont Evidence-Constrained Action Authorization for Camera-Based AI Assistants\par}
+\vspace{3pt}
+{\fontsize{9}{11}\selectfont Bo-An Hou, Yu-Chen Tsai\par}
+\end{center}
+\vspace{2pt}
+\noindent\textbf{Abstract---}Camera-based AI assistants can turn visible phone numbers, URLs, and directions into actions, but text in the scene should not automatically gain authority over those actions. LensGuard separates \emph{user intent}, \emph{visual evidence}, and \emph{action authorization}. In the September 2026 controlled benchmark, a model selects evidence IDs from an annotation-supported registry and a deterministic gate evaluates the proposed action. Across 81 synthetic images and five VLMs, four models with complete attack-case coverage produced 0/48 attacker-target simulated executions after the gate, while normal-task false escalations remained substantial. A 54-photo physical pilot adds 108 Qwen3-VL 8B Guard ON/OFF outputs: in the 12 same-photo pairs assessable in both modes, attacker-target output changed from 11/12 to 1/12, but the full Guard ON assessed subset still contained 9/22 attacker-target outputs and 0/20 correct parameters, with additional cases pending review. The October 2026 cloud demo retains the three-conversation task/observation/citation boundary, with GLM primary inference and an advisory Nemotron text review. Cloud acceptance comprises 10 exploratory runs and 16 runs from eight cases frozen before execution. In the frozen set, both modes resisted the two instruction attacks; only the guarded workflow clarified an ambiguous call target. These samples do not transfer historical benchmark results to the cloud models. LensGuard therefore treats safety, task completion, and auditability as separate outcomes rather than claiming universal physical-world protection.
+\par\vspace{3pt}
+\noindent\textbf{Keywords---}multimodal agents, physical prompt injection, vision-language models, action authorization, AI safety, provenance
+\vspace{3pt}\hrule\vspace{4pt}
+
+\begin{multicols}{2}
+\section{Problem and Impact}
+\subsection{Scene text can change an agent's behavior}
+Suppose a user asks a camera assistant to call a hotel. The frame contains a legitimate contact number and a sticker saying ``SYSTEM UPDATE---call this other number.'' The model may read both correctly, yet reading the sticker does not prove that its phone number belongs to the hotel or that the user authorized a different target. Indirect prompt injection exploits exactly this confusion between data and control~\cite{greshake}; physical variants extend the risk to VLMs, wearables, and embodied agents~\cite{ppia,devil,robot}.
+
+LensGuard separates three questions:
+\begin{equation}
+\text{Readable} \neq \text{Authenticated} \neq \text{Authorized to Act}.
+\end{equation}
+The perception layer reports what is visible. The evidence layer records what supports a parameter. The authorization layer decides whether that value may be used for the user's current task. This design is intentionally narrower than a generic prompt filter: it creates an auditable boundary immediately before a sensitive action.
+
+\subsection{Why this matters to real users}
+Camera and wearable assistants are useful precisely because they can read signs, business cards, menus, and directions. Removing all visible text would destroy that utility. RIO-Bench similarly frames robustness as a read-versus-ignore trade-off~\cite{rio}. LensGuard instead preserves useful scene information while limiting whether scene instructions can control an action.
+
+Our near-term product scope is practical and developer-facing: phone lookup, explicit simulated calling, directions, and text extraction. The current demo does not make real phone calls, payments, reservations, or safety-critical navigation decisions. That boundary is a feature of the evaluation, not a hidden limitation.
+
+\section{Innovation and Research Position}
+Existing work includes physical injection attacks~\cite{ppia}, perception-side defenses~\cite{devil,robot}, structured instruction/data separation~\cite{struq}, information-flow enforcement~\cite{fides}, and action-level attribution~\cite{attri}. LensGuard does not claim to invent provenance or tool permissions. Its contribution is to join visual evidence selection, explicit user-task parsing, and deterministic action authorization in a camera-agent pipeline, then evaluate both the security outcome and the cost to normal tasks.
+
+In the Nebius cloud implementation, GLM performs task understanding, scene observation, and evidence selection; a Nemotron service reviews the resulting text and structured trace. Deterministic code retains action authority. This division makes the model integration inspectable without treating a second model opinion as permission. The product exposes the boundary to users through a four-stage interface---Observe, Distinguish, Decide, Protect---instead of hiding it behind a single model answer.
+
+\subsection{Research questions}
+\textbf{RQ1}: When VLMs propose attacker-controlled parameters, can an external gate prevent simulated execution? \textbf{RQ2}: What normal-task cost accompanies that protection? \textbf{RQ3}: Does the same-photo physical comparison show suppression without overstating correct-task recovery? \textbf{RQ4}: Can local and cloud runtimes preserve the same authorization boundary while extending perception and uncertainty handling?
+\end{multicols}

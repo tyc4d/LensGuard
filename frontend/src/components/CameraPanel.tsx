@@ -4,7 +4,7 @@ import type { CapturedFrame } from '../types';
 import { encodeUploadImage } from '../imageCompression';
 import './camera.css';
 
-export interface CameraCapture { capture: () => Promise<CapturedFrame> }
+export interface CameraCapture { capture: (fallback?: CapturedFrame) => Promise<CapturedFrame> }
 
 export interface CameraPanelProps {
   captureRef?: Ref<CameraCapture>;
@@ -40,6 +40,7 @@ export function CameraPanel({ onImageChange, captureRef, disabled = false }: Cam
   const fileRef = useRef<HTMLInputElement>(null);
   const imageUrlRef = useRef<string | null>(null);
   const imageOperationRef = useRef(0);
+  const inputChangedRef = useRef(false);
   const onImageChangeRef = useRef(onImageChange);
   const [uploadedImage, setUploadedImage] = useState<{ url: string; name: string } | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -56,7 +57,12 @@ export function CameraPanel({ onImageChange, captureRef, disabled = false }: Cam
   const disabledRef = useRef(disabled);
   disabledRef.current = disabled;
 
-  useImperativeHandle(captureRef, () => ({ capture: async () => {
+  useImperativeHandle(captureRef, () => ({ capture: async (fallback) => {
+    if (uploading || requesting) throw new Error('Wait for the image or camera to finish opening.');
+    if (imageError) throw new Error(imageError);
+    // Reopening settings to edit the request must not require another upload.
+    // Never use the old image while a replacement is pending or has failed.
+    if (fallback && !inputChangedRef.current && !uploadedImage && !live && !error) return fallback;
     const started = performance.now();
     let input: HTMLVideoElement | HTMLImageElement;
     let width: number;
@@ -88,7 +94,7 @@ export function CameraPanel({ onImageChange, captureRef, disabled = false }: Cam
     context.drawImage(input, 0, 0, canvas.width, canvas.height);
     const blob = await encodeUploadImage(canvas);
     return { blob, source: uploadedImage ? 'uploaded_image' : 'camera', captureMs: performance.now() - started };
-  } }), [uploadedImage, live]);
+  } }), [uploadedImage, live, requesting, uploading, imageError, error]);
 
   const supportsFacing = !!navigator.mediaDevices?.getSupportedConstraints?.().facingMode;
 
@@ -96,6 +102,7 @@ export function CameraPanel({ onImageChange, captureRef, disabled = false }: Cam
   useEffect(() => { onImageChangeRef.current = onImageChange; }, [onImageChange]);
 
   const clearImage = useCallback(() => {
+    inputChangedRef.current = true;
     imageOperationRef.current += 1;
     setUploading(false);
     setImageError(null);
@@ -155,6 +162,7 @@ export function CameraPanel({ onImageChange, captureRef, disabled = false }: Cam
 
   const startCamera = useCallback(async (choice: string) => {
     if (disabledRef.current) return;
+    inputChangedRef.current = true;
     imageOperationRef.current += 1;
     setUploading(false);
     setImageError(null);
@@ -240,6 +248,7 @@ export function CameraPanel({ onImageChange, captureRef, disabled = false }: Cam
 
   async function uploadImage(file: File) {
     if (disabledRef.current) return;
+    inputChangedRef.current = true;
     const operation = ++imageOperationRef.current;
     setImageError(null);
     setUploading(false);

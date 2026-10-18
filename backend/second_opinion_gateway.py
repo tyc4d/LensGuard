@@ -10,6 +10,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
+from app.request_limits import RequestBodyLimitMiddleware
 
 
 class EvaluationRequest(BaseModel):
@@ -52,6 +53,7 @@ def _origin(url: httpx.URL) -> str:
 
 def create_app(*, transport: httpx.BaseTransport | None = None) -> FastAPI:
     app = FastAPI(title='LensGuard Nemotron second-opinion evaluator')
+    app.add_middleware(RequestBodyLimitMiddleware, paths=('/v1/evaluate',), json_limit=1024 * 1024)
     base_url = os.environ.get('NEBIUS_BASE_URL', 'https://api.tokenfactory.us-central1.nebius.com/v1/').rstrip('/')
     api_key = os.environ.get('NEBIUS_API_KEY')
     model = os.environ.get('SECOND_OPINION_MODEL', 'nvidia/Nemotron-3-Ultra-550b-a55b')

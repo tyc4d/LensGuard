@@ -36,6 +36,7 @@ for (const width of [390, 1280]) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press('Escape');
       await expect(drawer).not.toBeVisible();
+      await expect(page.getByRole('button', { name: 'View evidence', exact: true })).toBeFocused();
     }
   });
 }

@@ -1,12 +1,12 @@
 """HTTP-only bridge to the independent Prototype process; never a mock fallback."""
 from dataclasses import dataclass
 from time import perf_counter
-from typing import Any
+from typing import Annotated, Any
 
 import json
 import math
 import httpx
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 
 from .models import PolicyDecision, ProposedAction, ProvenanceValue, RunOutcome, TraceNode, TraceEdge, SecondOpinion
 from .action_validation import reservation_issues
@@ -49,7 +49,7 @@ def _model_output_failure(output):
 
 
 def _runtime_error_message(detail, status_code=None):
-    """Localize the public error while keeping upstream text in diagnostics."""
+    """Localize errors without publishing raw service or transport diagnostics."""
     text = str(detail)
     known_errors = {
         'NEBIUS_HTTP_401': 'Nebius authentication failed. Check the server-side API key.',
@@ -72,7 +72,7 @@ def _runtime_error_message(detail, status_code=None):
         return 'The image must be nonempty and no larger than 10 MiB.'
     if status_code == 422:
         return 'The model service could not accept this input. Check the image and user request, then try again.'
-    return 'The model service could not complete the analysis. Try again later; the original error is available in technical details.'
+    return 'The model service could not complete the analysis. Try again later or check the server logs.'
 
 
 def _english_task_reason(reason):
@@ -137,7 +137,7 @@ def _policy_reason(policy):
 class RemoteOutput(BaseModel):
     model_config = ConfigDict(extra="allow")
     raw_text: str
-    parsed: bool
+    parsed: StrictBool
     proposed_action: dict[str, Any] | None = None
     native_action: dict[str, Any] | None = None
     candidate_action: dict[str, Any] | None = None
@@ -153,7 +153,7 @@ class RemoteResponse(BaseModel):
     output: RemoteOutput
     provenance: dict[str, Any] | None
     policy: dict[str, Any] | None
-    timing: dict[str, float]
+    timing: dict[str, Annotated[float, Field(ge=0, allow_inf_nan=False)]]
 
 
 class PrototypeRuntimeProvider:
@@ -184,9 +184,11 @@ class PrototypeRuntimeProvider:
                 response = await client.get(f'{self.url}/health')
                 response.raise_for_status()
                 health = response.json()
+                if not isinstance(health, dict):
+                    raise ValueError('Invalid health response')
                 if health.get('error'):
-                    health = {**health, 'raw_error': health['error'],
-                              'error': _runtime_error_message(health['error'])}
+                    health = {**health, 'error': _runtime_error_message(health['error'])}
+                health.pop('raw_error', None)
                 return health
         except (httpx.HTTPError, ValueError):
             return {'status': 'unavailable', 'model_loaded': False, 'error': 'Unable to connect to the model service. Start the service; the system will not fall back to mock results.'}
@@ -203,11 +205,12 @@ class PrototypeRuntimeProvider:
                           **({'model_profile': frame.model_profile} if frame.model_profile else {})})
             if response.is_error:
                 try:
-                    detail = response.json().get('detail', response.text)
+                    body = response.json()
+                    detail = body.get('detail', '') if isinstance(body, dict) else ''
                 except ValueError:
-                    detail = response.text
+                    detail = ''
                 raise RuntimeFailure(_runtime_error_message(detail, response.status_code),
-                                     diagnostics={'status_code': response.status_code, 'detail': detail})
+                                     diagnostics={'status_code': response.status_code})
             result = RemoteResponse.model_validate(response.json())
             if result.contract_version != 'lensguard-demo-v1':
                 raise ValueError('Unsupported contract version')
@@ -217,13 +220,13 @@ class PrototypeRuntimeProvider:
             return result, (perf_counter() - started) * 1000
         except httpx.TimeoutException as exc:
             raise RuntimeFailure('Model inference timed out. The model may still be processing; the system will not fall back to mock results.',
-                                 diagnostics={'type': type(exc).__name__, 'detail': str(exc)}) from exc
+                                 diagnostics={'type': type(exc).__name__}) from exc
         except httpx.HTTPError as exc:
             raise RuntimeFailure('Unable to connect to the model service. Start the service; the system will not fall back to mock results.',
-                                 diagnostics={'type': type(exc).__name__, 'detail': str(exc)}) from exc
+                                 diagnostics={'type': type(exc).__name__}) from exc
         except ValueError as exc:
             raise RuntimeFailure('The model service returned invalid data; the system will not fall back to mock results.',
-                                 diagnostics={'type': type(exc).__name__, 'detail': str(exc)}) from exc
+                                 diagnostics={'type': type(exc).__name__}) from exc
 
     def map_action(self, response, run_id, *, candidate=False):
         output = response.output

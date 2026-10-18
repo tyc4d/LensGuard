@@ -80,7 +80,7 @@ for (const width of [320, 1280]) {
     const info = page.locator('.runtime-info');
     await expect(info).toContainText('12.00');
     await expect(info).toBeInViewport({ ratio: 1 });
-    await expect(info).toHaveCSS('font-size', '10px');
+    await expect(info).toHaveCSS('font-size', '12px');
     const bounds = await info.boundingBox();
     const wordmark = await page.locator('.experience-wordmark').boundingBox();
     const stage = await page.locator('.demo-experience').boundingBox();

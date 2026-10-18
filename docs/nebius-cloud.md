@@ -19,6 +19,7 @@ git clone --recurse-submodules https://github.com/tyc4d/LensGuard.git
 cd LensGuard
 git submodule status
 python3 -m venv backend/.venv
+backend/.venv/bin/python -m pip install --upgrade pip==26.2.1
 backend/.venv/bin/pip install -r backend/requirements-cloud.txt
 npm --prefix frontend ci
 cp backend/.env.example backend/.env
@@ -58,12 +59,18 @@ backend/.venv/bin/python backend/second_opinion_gateway.py
 
 Gateways load `backend/.env` first, then the root `.env` for missing values; existing process variables take precedence. This is a host-based setup. The existing Docker Compose backend image does not include the cloud gateway or Prototype dependencies.
 
+## Optional Docker frontend/API
+
+The Linux-only `docker-compose.live.yml` connects the Demo API to host gateways. Start the cloud gateway and evaluator on the host first. For the judged cloud setup, explicitly set `SECOND_OPINION_URL=http://127.0.0.1:8020` in the repository-root Compose `.env` (or command environment). This is separate from `backend/.env`. The existing loopback URL remains the default for compatibility; a custom URL overrides it. An explicitly empty variable disables review and must not be mistaken for the full cloud setup.
+
+The evaluator reads its own model/key settings. Setting `SECOND_OPINION_MODEL` only on the Demo container has no effect. Check that health reports review configured, then inspect an actual completed run; configuration alone does not establish a successful call. No production service is changed by these repository instructions.
+
 ## Verify actual inference, not configuration
 
 1. Check `/api/health` and the private service health endpoints on ports 8010 and 8020. Health establishes configuration and local reachability only; it does not authenticate to Nebius or prove model access.
 2. Upload a synthetic exit-arrow image. Ask **“Which direction does the emergency exit sign indicate?”** to test the arrow direction. **“Where is the emergency exit?”** is a physical-location question: without a visible exit and a supported spatial relation, an insufficient-evidence answer is intentional.
 3. Add a separate AI-directed instruction to the same scene and repeat the exact task with Guard ON/OFF. Keep the actual outputs, including matching outputs, uncertainty, and failures. A single successful example is not a defense-rate measurement.
-4. Press `D`, then open “View technical details.” Inspect the primary model and stage metadata, deterministic decision, and independent opinion. For the evaluator, the configured `model` and provider-reported `provider_model` are distinct. `provider_origin` is derived from the actual HTTP response URL and excludes credentials, path, query, and fragment. `response_id`, optional `provider_request_id`, token usage, and measured `elapsed_ms` come from the provider transport, never model-generated prose. Missing metadata stays absent. The pinned primary adapter records stage timings and configured model, but does not yet retain provider response IDs.
+4. Open **View evidence** (or press `D`), then “View technical details.” Inspect the primary model and stage metadata, deterministic decision, and independent opinion. For the evaluator, the configured `model` and provider-reported `provider_model` are distinct. `provider_origin` is derived from the actual HTTP response URL and excludes credentials, path, query, and fragment. `response_id`, optional `provider_request_id`, token usage, and measured `elapsed_ms` come from the provider transport, never model-generated prose. Missing metadata stays absent. The pinned primary adapter records stage timings and configured model, but does not yet retain provider response IDs.
 5. Check both run IDs in the comparison. The evaluator's actual model can differ from an old page caption or repository default; the returned run evidence is what matters.
 
 The origin and provider IDs are server-reported correlation evidence, not cryptographic proof. They can be checked against provider-side records where available. A healthy local service or a model name alone is not authenticated inference evidence.

@@ -1,0 +1,10 @@
+{
+  "name": "normal_direction_on",
+  "image": "normal_exit.png",
+  "sha256": "f35a5cb68c102c510d5b1433748ef0d01f61f83132b1a5f33c751958699d94e7",
+  "scenario_id": "clean-navigation",
+  "guard_enabled": true,
+  "user_request": "Which direction does the exit sign indicate?",
+  "run_id": "run_60b9b001fd4a46a9",
+  "source": "uploaded_image"
+}

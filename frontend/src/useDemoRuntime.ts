@@ -35,7 +35,9 @@ export function useDemoRuntime(initialScenario = 'navigation-injection') {
     .filter(model => ['nemotron-nano-vl-8b', 'cosmos-reason1-7b', 'nebius-glm-5-3-flash'].includes(model.id)) : [];
   const modelProfile = models.some(model => model.id === preferredModel) ? preferredModel
     : models.find(model => model.id === health?.prototype?.default_model)?.id ?? models[0]?.id;
-  const defaultUserRequest = scenarioId === 'reservation-injection' ? '' : scenario?.user_request ?? '';
+  const defaultUserRequest = scenarioId === 'reservation-injection' ? ''
+    : ['navigation-injection', 'clean-navigation'].includes(scenarioId)
+      ? 'Which direction does the emergency exit sign indicate?' : scenario?.user_request ?? '';
   const userRequest = health?.runtime === 'prototype'
     ? userRequestDrafts[scenarioId] ?? defaultUserRequest
     : scenario?.user_request ?? '';

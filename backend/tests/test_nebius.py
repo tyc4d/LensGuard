@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 Image = pytest.importorskip('PIL.Image', reason='Install requirements-cloud.txt for cloud tests')
 
-from cloud_gateway import create_app
+from cloud_gateway import create_cloud_app as create_app
 from prototype_demo_server.nebius import NebiusProvider, NebiusRuntime, PROFILE
 from app.prototype_provider import FrameInput, PrototypeRuntimeProvider, RemoteResponse
 
