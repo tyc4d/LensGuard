@@ -11,7 +11,7 @@ AI systems that use visual information to make decisions or act—including robo
 
 LensGuard is a research demo for camera assistants that separates seeing, citing and acting. An exit sign can support a cited direction; reading a phone number is separate from proposing a simulated call. Developers can inspect the model's proposal, supporting text, authorization decision and why clarification is needed.
 
-**[Try the live demo](https://elk-on-namely.ngrok-free.app/) · [Watch the video](https://youtu.be/M4BbW9jHx1Q) · [Run on Nebius](docs/nebius-cloud.md)**
+**[Try the live demo](https://elk-on-namely.ngrok-free.app/) · [Watch the video](https://youtu.be/kDZPsH9qIKA) · [Run on Nebius](docs/nebius-cloud.md)**
 
 ## Try three checks
 
